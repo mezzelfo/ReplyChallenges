@@ -4,13 +4,11 @@
 
 int main(int argc, char const **argv)
 {
-    FILE* inputFile;
     Point startPoint, endPoint;
     unsigned obstaclesCount;
     Triangle* obstaclesArray;
     Point* graphNodes;
     unsigned nodesCount;
-    int checkScanf;
     float** CostMatrix;
 
     if (argc != 2)
@@ -19,56 +17,9 @@ int main(int argc, char const **argv)
         exit(EXIT_FAILURE);
     }
 
-    inputFile = fopen(argv[1],"r");
-    if (inputFile == NULL)
-    {
-        fprintf(stderr,"Errore nell'apertura del file di input\n");
-        exit(EXIT_FAILURE);
-    }
-    checkScanf = fscanf(inputFile,"%d %d %d %d %u",&(startPoint.x),&(startPoint.y),&(endPoint.x),&(endPoint.y),&obstaclesCount);
-    if (checkScanf != 5)
-    {
-        fprintf(stderr,"Errore nella lettura del file di input\n");
-        exit(EXIT_FAILURE);
-    }    
-    obstaclesArray = (Triangle*)malloc(obstaclesCount * sizeof(Triangle));
-    if (obstaclesArray == NULL)
-    {
-        fprintf(stderr,"Errore nell'allocazione della memoria\n");
-        fclose(inputFile);
-        exit(EXIT_FAILURE);
-    }
-    for(unsigned i = 0; i < obstaclesCount; i++)
-    {
-        checkScanf = fscanf(inputFile,"%d %d %d %d %d %d",
-                    &(obstaclesArray[i].a.x),
-                    &(obstaclesArray[i].a.y),
-                    &(obstaclesArray[i].b.x),
-                    &(obstaclesArray[i].b.y),
-                    &(obstaclesArray[i].c.x),
-                    &(obstaclesArray[i].c.y)
-                );
-        if (checkScanf != 6)
-        {
-            fprintf(stderr,"Errore nella lettura del file di input\n");
-            free(obstaclesArray);
-            fclose(inputFile);
-            exit(EXIT_FAILURE);
-        }
-    }
-    fclose(inputFile);
-
-    for(Triangle* i = obstaclesArray; i != obstaclesArray + obstaclesCount; ++i)
-    {
-        if (point_is_in_triangle(&startPoint, i) || point_is_in_triangle(&endPoint, i)) {
-            fprintf(stderr,"StartPoint: (%d,%d)\n",startPoint.x,startPoint.y);
-            fprintf(stderr,"EndPoint: (%d,%d)\n",endPoint.x,endPoint.y);
-            fprintf(stderr,"Triangolo contenete uno dei due stremi: ((%d,%d)(%d,%d)(%d,%d))\n",
-                            i->a.x,i->a.y,i->b.x,i->b.y,i->c.x,i->c.y);
-            printf("IMPOSSIBLE\n");
-            return 0;
-        }
-    }
+    read_file(argv[1], &startPoint, &endPoint, &obstaclesArray, &obstaclesCount);
+    is_problem_feasible(startPoint,endPoint,obstaclesArray,obstaclesCount);
+    
     
     graphNodes = (Point*)calloc(4*3*obstaclesCount, sizeof(Point));
     nodesCount = 0;
@@ -115,6 +66,7 @@ int main(int argc, char const **argv)
             }
         }
     }
+    
     fprintf(stderr,"Punti grafo: \t%d\nPunti totali: \t%d\n", nodesCount, obstaclesCount*3);
     graphNodes = (Point*)realloc(graphNodes, (2+nodesCount)*sizeof(Point));
     nodesCount += 2; //StartPoint and EndPoint

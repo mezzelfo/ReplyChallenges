@@ -8,7 +8,10 @@
 typedef struct {int x,y;} Point;
 typedef struct {Point a,b,c;} Triangle;
 
-int Sign(const Point* const p1, const Point* const p2, const Point* const p3);
+void read_file(const char* filename, Point* startPoint, Point* endPoint, Triangle** obstaclesArray, unsigned* obstaclesCount);
+void is_problem_feasible(const Point startPoint, const Point endPoint, const Triangle* obstaclesArray, const unsigned obstaclesCount);
+
+int sign(const Point* const p1, const Point* const p2, const Point* const p3);
 _Bool point_is_in_triangle(const Point* const P, const Triangle* const T);
 _Bool are_points_visible(const Point* P1, const Point* P2, Triangle* obstaclesArray, const unsigned obstaclesCount);
 float** setup_square_matrix(const unsigned size);
