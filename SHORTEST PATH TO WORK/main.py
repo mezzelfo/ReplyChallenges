@@ -43,15 +43,6 @@ def pointInTriangle(t,p):
 	has_pos = (d1 >= 0) or (d2 >= 0) or (d3 >= 0)
 	return not(has_neg and has_pos)
 
-def connessi(t1,t2):
-	if distance(t1.circocentro, t2.circocentro) > t1.circoraggio + t2.circoraggio:
-		return False
-	if any([intersecate(t1,p) for p in t2.vertices]):
-		return True
-	if any([intersecate(t2,p) for p in t1.vertices]):
-		return True
-	return False
-
 #main
 obstacles = []
 start = 0
@@ -86,27 +77,13 @@ for t in obstacles:
 			print('Il punto',end,'è all\'interno di',t.vertices)
 			exit()
 
-noTouchy = []
-i = 0
-for t in obstacles:
-	i+=1
-	print(i)
-	r = ceil(t.circoraggio)
-	c = (ceil(t.circocentro[0]),ceil(t.circocentro[1]))
-	for x in range(c[0]-r,c[0]+r):
-		for y in range(c[1]-r,c[1]+r):
-			if pointInTriangle(t,(x,y)):
-				noTouchy.append((x,y))
-print(getsizeof(noTouchy),'bytes')
-print(len(noTouchy))
-exit()
+traiettoria = [(1000,1000),(966,976),(965,975),(544,545),(543,544),(0,1)]
 
 print('Preparo il grafico')
 i = 0
-plt.scatter(start[0],start[1],color='red')
+plt.scatter(start[0],start[1],color='black')
 plt.scatter(end[0],end[1],color='black')
-for p in traiettoria:
-	plt.scatter(p[0],p[1],color='green')
+plt.plot([k[0] for k in traiettoria], [k[1] for k in traiettoria], '-o', color='red')
 for t in obstacles:
 	i += 1
 	if any([(min(start[0],end[0])<=k[0]<=max(start[0],end[0])) and (min(start[1],end[1])<=k[1]<=max(start[1],end[1]))  for k in t.vertices]):
