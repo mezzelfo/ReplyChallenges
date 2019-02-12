@@ -46,6 +46,9 @@ int main()
 	if ((EventsArray == NULL) || (RoomsArray == NULL))
 	{
 		fprintf(stderr, "Errore nell'allocazione della memoria\n");
+		free(EventsArray);
+		free(RoomsArray);
+		fclose(inputFile);
 		exit(EXIT_FAILURE);
 	}
 	for (unsigned i = 0; i < EventsCount; ++i)
@@ -119,7 +122,7 @@ void clean_rooms(Room** RoomsArray, unsigned* RoomsCount)
 		}
 	}
 	free(*RoomsArray);
-	*RoomsArray = CleanRoomsArray;
+	*RoomsArray = (Room*)realloc(CleanRoomsArray, CleanRoomsCount);
 	*RoomsCount = CleanRoomsCount;
 }
 
@@ -141,7 +144,7 @@ void clean_events(Event** EventsArray, unsigned* EventsCount, const unsigned max
 		}
 	}
 	free(*EventsArray);
-	*EventsArray = CleanEventsArray;
+	*EventsArray = (Event*)realloc(CleanEventsArray, CleanEventsCount);
 	*EventsCount = CleanEventsCount;
 }
 
