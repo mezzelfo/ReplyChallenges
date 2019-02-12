@@ -122,7 +122,7 @@ void clean_rooms(Room** RoomsArray, unsigned* RoomsCount)
 		}
 	}
 	free(*RoomsArray);
-	*RoomsArray = (Room*)realloc(CleanRoomsArray, CleanRoomsCount);
+	*RoomsArray = (Room*)realloc(CleanRoomsArray, CleanRoomsCount*sizeof(Room));
 	*RoomsCount = CleanRoomsCount;
 }
 
@@ -144,7 +144,7 @@ void clean_events(Event** EventsArray, unsigned* EventsCount, const unsigned max
 		}
 	}
 	free(*EventsArray);
-	*EventsArray = (Event*)realloc(CleanEventsArray, CleanEventsCount);
+	*EventsArray = (Event*)realloc(CleanEventsArray, CleanEventsCount*sizeof(Event));
 	*EventsCount = CleanEventsCount;
 }
 
