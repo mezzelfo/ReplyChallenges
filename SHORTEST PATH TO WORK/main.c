@@ -35,18 +35,18 @@ int main(int argc, char const **argv)
         Point puntiVicini[] = { obs->a,obs->a,obs->a,obs->a,
                                 obs->b,obs->b,obs->b,obs->b,
                                 obs->c,obs->c,obs->c,obs->c};
-        for (int i=0;i<2;i++)
+        for (int i=0;i<3;i++)
         {
-            puntiVicini[4*i+0].x ++;
-            puntiVicini[4*i+1].y ++;
-            puntiVicini[4*i+2].x --;
-            puntiVicini[4*i+3].y --;
+            puntiVicini[4*i+0].x++;
+            puntiVicini[4*i+1].y++;
+            puntiVicini[4*i+2].x--;
+            puntiVicini[4*i+3].y--;
         }
         for(Triangle* tri = obstaclesArray; tri != obstaclesArray + obstaclesCount; ++tri)
         {
             for (int i=0;i<12;i++)
             {
-                if (!servono[i] || point_is_in_triangle(puntiVicini+i, tri)) servono[i] = 0;
+                if (servono[i] && point_is_in_triangle(puntiVicini+i, tri)) servono[i] = 0;
             }
         }
         for (int i=0;i<12;i++)
@@ -100,6 +100,7 @@ int main(int argc, char const **argv)
         }
     }
     fprintf(stderr,"Ho finito di calcolare i pesi\n");
+    exit(1);
     int dim;
     int* x = dijkstra(CostMatrix, nodesCount-2, nodesCount-1, nodesCount, &dim);
     for(int i = 0; i < dim; i++)
