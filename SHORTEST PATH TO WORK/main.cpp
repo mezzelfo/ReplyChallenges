@@ -1,12 +1,14 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <list>
 #include <set>
 #include <array>
 #include <map>
 #include <utility>
 #include <queue>
 #include <math.h>
+#define INF 99999.0
 
 using namespace std;
 
@@ -104,6 +106,17 @@ inline double distance(const Point& P1, const Point& P2)
     return sqrt((P1.first-P2.first)*(P1.first-P2.first)+(P1.second-P2.second)*(P1.second-P2.second));;
 }
 
+list<Point> visibleFrom(const Point& u, const set<Point>& Vertices, const vector<Triangle>& obsV)
+{
+	list<Point> l;
+	l.clear();
+	for (auto& P : Vertices)
+	{
+		if (are_points_visible(u,P,obsV)) l.push_back(P);
+	}
+	return l;
+}
+
 int main(int argc, char const *argv[])
 {
     ifstream inFile;
@@ -159,17 +172,33 @@ int main(int argc, char const *argv[])
 
     cout << Vertices.size() << endl;
 
-    map<Point,double> heap;
-    for(auto& P : Vertices) heap[P]=9999;
-    heap[startPoint] = 0;
+    set< pair<double, Point> > setds;
+    map<Point, double> dist;
+    setds.insert(make_pair(0.0, startPoint)); 
+    for (auto& P : Vertices) dist[P] = INF;
+    dist[startPoint] = 0;
+    while (!setds.empty()) 
+    { 
+    	Point u = setds.begin()->second;
+    	setds.erase(setds.begin());
+    	auto vis = visibleFrom(u, Vertices, obsV);
+        for (Point& v: vis) 
+        {
+            double weight = distance(u,v);
+            if (dist[v] > dist[u] + weight) 
+            { 
+                if (dist[v] != INF) 
+                    setds.erase(setds.find(make_pair(dist[v], v))); 
+                dist[v] = dist[u] + weight; 
+                setds.insert(make_pair(dist[v], v)); 
+            } 
+        } 
+    } 
 
+    cout    << "Start: " << startPoint << endl
+            << "End:" << endPoint << endl
+            << "distance" << dist[endPoint] << endl;
 
-    cout << heap.begin()->first << endl;
-    
-
-    
-
-    
 /*
     exit(1);
     map<Point,set<pair<Point,double>>> graph;
@@ -179,10 +208,6 @@ int main(int argc, char const *argv[])
                 graph[P1].emplace(P2,distance(P1,P2));
 */
 
-
-
-    
-        
 
 
     return 0;
