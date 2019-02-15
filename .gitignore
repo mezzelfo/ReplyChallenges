@@ -1,6 +1,6 @@
 
 .DS_Store
-
+venv/
 */venv/*
 *.out
 .vscode/settings.json
