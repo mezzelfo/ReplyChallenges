@@ -8,14 +8,14 @@
 #include <utility>
 #include <queue>
 #include <math.h>
-#define INF 99999.0
+#define INF 99999999999.0
 
 using namespace std;
 
 typedef pair<int,int> Point;
 typedef array<Point,3> Triangle;
 
-ostream & operator << (ostream &out, const Point &P) {return out << "("<<P.first<<", "<<P.second<<")";}
+ostream & operator << (ostream &out, const Point &P) {return out << P.first<<" "<<P.second;}
 istream & operator >> (istream &in,  Point &P) {return in >> P.first >> P.second;}
 istream & operator >> (istream &in,  Triangle &T) {return in >> T[0] >> T[1] >> T[2];}
 
@@ -52,53 +52,38 @@ bool is_point_in_triangle(const Point& P, const Triangle& T)
     return ((b1 == b2) && (b2 == b3));
 }
 
-int side(const Point& p, const Point& q, const Point& a, const Point& b)
+int ccw (const Point& p0, const Point& p1, const Point& p2)
 {
-    int z1 = (b.first - a.first) * (p.second - a.second) - (p.first - a.first) * (b.second - a.second);
-    int z2 = (b.first - a.first) * (q.second - a.second) - (q.first - a.first) * (b.second - a.second);
-    return z1 * z2;
+   int dx1,dx2,dy1,dy2;
+
+   dx1 = p1.first-p0.first; 
+   dy1 = p1.second-p0.second;
+   dx2 = p2.first-p0.first; 
+   dy2 = p2.second-p0.second;
+
+   if (dx1*dy2 > dy1*dx2) return +1;
+   if (dx1*dy2 < dy1*dx2) return -1;
+   if ((dx1*dx2 < 0) || (dy1*dy2 < 0)) return -1; 
+   if ((dx1*dx1+dy1*dy1) < (dx2*dx2+dy2*dy2)) return +1;
+   return 0;   
 }
+
+int intersect(const Point& l1p1, const Point& l1p2, const Point& l2p1, const Point& l2p2)
+{
+   return ((ccw(l1p1,l1p2,l2p1)*ccw(l1p1,l1p2,l2p2)) <=0) &&
+          ((ccw(l2p1,l2p2,l1p1)*ccw(l2p1,l2p2,l1p2)) <=0);
+}
+
 
 bool are_points_visible(const Point& p0, const Point& p1, const vector<Triangle>& obsV)
 {
     for(auto& tri : obsV)
     {
-        Point t0 = tri[0];
-        Point t1 = tri[1];
-        Point t2 = tri[2];
-       /* Check whether segment is outside one of the three half-planes
-     * delimited by the triangle. */
-    float f1 = side(p0, t2, t0, t1), f2 = side(p1, t2, t0, t1);
-    float f3 = side(p0, t0, t1, t2), f4 = side(p1, t0, t1, t2);
-    float f5 = side(p0, t1, t2, t0), f6 = side(p1, t1, t2, t0);
-    /* Check whether triangle is totally inside one of the two half-planes
-     * delimited by the segment. */
-    float f7 = side(t0, t1, p0, p1);
-    float f8 = side(t1, t2, p0, p1);
-
-    /* If segment is strictly outside triangle, or triangle is strictly
-     * apart from the line, we're not intersecting */
-    if ((f1 < 0 && f2 < 0) || (f3 < 0 && f4 < 0) || (f5 < 0 && f6 < 0)
-          || (f7 > 0 && f8 > 0)) continue;
-
-    /* If segment is aligned with one of the edges, we're overlapping */
-    if ((f1 == 0 && f2 == 0) || (f3 == 0 && f4 == 0) || (f5 == 0 && f6 == 0)) return 0;
-
-    /* If segment is outside but not strictly, or triangle is apart but
-     * not strictly, we're touching */
-    if ((f1 <= 0 && f2 <= 0) || (f3 <= 0 && f4 <= 0) || (f5 <= 0 && f6 <= 0)
-          || (f7 >= 0 && f8 >= 0)) return 0;
-
-    /* If both segment points are strictly inside the triangle, we
-     * are not intersecting either */
-    if (f1 > 0 && f2 > 0 && f3 > 0 && f4 > 0 && f5 > 0 && f6 > 0) continue;
-
-    /* Otherwise we're intersecting with at least one edge */
-    return 0;
-        
-
+        if (intersect(p0,p1,tri[0],tri[1])) return false;
+        if (intersect(p0,p1,tri[0],tri[2])) return false;
+        if (intersect(p0,p1,tri[2],tri[1])) return false;
     }
-    return 1;
+    return true;
 }
 
 inline double distance(const Point& P1, const Point& P2)
@@ -111,9 +96,8 @@ list<Point> visibleFrom(const Point& u, const set<Point>& Vertices, const vector
 	list<Point> l;
 	l.clear();
 	for (auto& P : Vertices)
-	{
-		if (are_points_visible(u,P,obsV)) l.push_back(P);
-	}
+        if (are_points_visible(u,P,obsV))
+            l.push_back(P);
 	return l;
 }
 
@@ -170,15 +154,15 @@ int main(int argc, char const *argv[])
             if (needed[i]) Vertices.emplace(v[i]);
     }
 
-    cout << Vertices.size() << endl;
-
+    
     set< pair<double, Point> > setds;
     map<Point, double> dist;
+    map<Point, Point> parent;
     setds.insert(make_pair(0.0, startPoint)); 
     for (auto& P : Vertices) dist[P] = INF;
     dist[startPoint] = 0;
     while (!setds.empty()) 
-    { 
+    {
     	Point u = setds.begin()->second;
     	setds.erase(setds.begin());
     	auto vis = visibleFrom(u, Vertices, obsV);
@@ -191,24 +175,23 @@ int main(int argc, char const *argv[])
                     setds.erase(setds.find(make_pair(dist[v], v))); 
                 dist[v] = dist[u] + weight; 
                 setds.insert(make_pair(dist[v], v)); 
+                parent[v] = u;
             } 
         } 
     } 
 
-    cout    << "Start: " << startPoint << endl
-            << "End:" << endPoint << endl
-            << "distance" << dist[endPoint] << endl;
+    list<Point> shortestPath;
+    Point p = endPoint;
+    do
+    {
+        shortestPath.push_front(p);
+        p = parent[p];
+    }while(p != startPoint);
+    shortestPath.push_front(startPoint);
 
-/*
-    exit(1);
-    map<Point,set<pair<Point,double>>> graph;
-    for(auto& P1 : Vertices)
-        for(auto& P2 : Vertices)
-            if (are_points_visible(P1,P2,obsV))
-                graph[P1].emplace(P2,distance(P1,P2));
-*/
-
-
+    cout << shortestPath.size() << endl;
+    for (auto& P: shortestPath)
+        cout << P << endl;
 
     return 0;
 }
