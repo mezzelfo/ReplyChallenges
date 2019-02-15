@@ -1,27 +1,25 @@
 #ifndef TOOL_H
 #define TOOL_H
-#include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
-#define INF 9999999.0
+#include <stdlib.h>
 
+
+// Structures
 typedef struct {int x,y;} Point;
-typedef struct {Point a,b,c;} Triangle;
+typedef struct {Point A,B,C;} Triangle;
 
-void read_file(const char* filename, Point* startPoint, Point* endPoint, Triangle** obstaclesArray, unsigned* obstaclesCount);
-void is_problem_feasible(const Point startPoint, const Point endPoint, const Triangle* obstaclesArray, const unsigned obstaclesCount);
+// Generic helper functions
+void* vec_alloc(unsigned size);
+inline int prod_vect(const Point* P1, const Point* P2, const Point* A); //(P2-P1)x(A-P1)
 
-int sign(const Point* const p1, const Point* const p2, const Point* const p3);
-_Bool point_is_in_triangle(const Point* const P, const Triangle* const T);
-_Bool are_points_visible(const Point* P1, const Point* P2, Triangle* obstaclesArray, const unsigned obstaclesCount);
-float** setup_square_matrix(const unsigned size);
-void free_square_matrix(float** Matrix, const unsigned size);
+// IO related functions
+int read_int(FILE* f);
+Point read_point(FILE* f);
+Triangle read_triangle(FILE* f); // All triangle should be memorized in "anticlockwise mode"
+void print_point(const Point P);
 
-inline float distance_ptp(Point P1, Point P2)
-{
-    return sqrt((P1.x-P2.x)*(P1.x-P2.x)+(P1.y-P2.y)*(P1.y-P2.y));
-}
-
-int* dijkstra(float** cost, int source, int target, unsigned N, int* resultDim);
+// Geometry related functions
+int orientation_point_line(const Point* P1, const Point* P2, const Point* A);
+int is_point_in_triangle(const Point* P, const Triangle* T);
 
 #endif
