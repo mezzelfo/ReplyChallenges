@@ -20,6 +20,7 @@ void print_point(const Point P);
 
 // Geometry related functions
 int orientation_point_line(const Point* P1, const Point* P2, const Point* A);
+int is_point_on_segment(const Point* P1, const Point* P2, const Point* A);
 int is_point_in_triangle(const Point* P, const Triangle* T);
 
 #endif

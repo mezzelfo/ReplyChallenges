@@ -36,7 +36,6 @@ int main(int argc, char const *argv[])
 			printf("IMPOSSIBLE\n");
 			return 0;
 		}
-		
 	}
 		
 
