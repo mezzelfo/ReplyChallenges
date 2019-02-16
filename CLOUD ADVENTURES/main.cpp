@@ -2,27 +2,48 @@
 #include <fstream>
 #include <vector>
 #include "tool.hpp"
-using namespace std;
+
+std::vector<Provider> providers;
+std::vector<Service> services;
+std::vector<Country> countries;
+std::vector<Project> projects;
 
 int main(int argc, char const *argv[])
 {
-    ifstream inFile;
+    std::ifstream inFile;
+
     if (argc != 2)
     {
-        cerr << "Please use ./a.out <namefileinput>" << endl;
+        std::cerr << "Please use ./a.out <namefileinput>" << std::endl;
         exit(EXIT_FAILURE);
     }
     inFile.open(argv[1]);
     if (!inFile)
     {
-        cerr << "Unable to open input file" << endl;
+        std::cerr << "Unable to open input file" << std::endl;
         exit(EXIT_FAILURE);
     }
+    
+    providers.reserve(read_from_file<int>(inFile));
+    services.reserve(read_from_file<int>(inFile));
+    countries.reserve(read_from_file<int>(inFile));
+    projects.reserve(read_from_file<int>(inFile));
 
-    vector<Provider> providers;
-    vector<Service> services;
-    vector<Country> countries;
-    vector<Project> projects;
+    for(size_t i = 0; i < services.capacity(); i++)
+        services.push_back(read_from_file<Service>(inFile));
+    services.shrink_to_fit();
+    for(size_t i = 0; i < countries.capacity(); i++)
+        countries.push_back(read_from_file<Country>(inFile));
+    countries.shrink_to_fit();
+    for(size_t i = 0; i < providers.capacity(); i++)
+        providers.push_back(read_from_file<Provider>(inFile));
+    providers.shrink_to_fit();
+    for(size_t i = 0; i < projects.capacity(); i++)
+        projects.push_back(read_from_file<Project>(inFile));
+    projects.shrink_to_fit();
+
+
+
 
     return 0;
 }

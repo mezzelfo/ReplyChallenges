@@ -11,21 +11,31 @@ typedef std::string Country;
 class Region
 {
     std::string name;
-    unsigned availablePackages;
-    double packageUnitCost;
-    std::map<Service,unsigned> packagesPerServices;
-    std::map<Country,unsigned> latencyPerCountry;
+    int availablePackages;
+    float packageUnitCost;
+    std::map<Service,int> packagesPerServices;
+    std::map<Country,int> latencyPerCountry;
+    friend std::istream& operator>>(std::ifstream& is, Region& r);
 };
 class Provider
 {
     std::string name;
     std::vector<Region> regions;
+    friend std::istream& operator>>(std::ifstream& is, Provider& p);
 };
 class Project
 {
-    unsigned basePenality;
+    int basePenality;
     Country country;
-    std::map<Service,unsigned> unitsNeededPerServices;
+    std::map<Service,int> unitsNeededPerServices;
+    friend std::istream& operator>>(std::ifstream& is, Project& p);
 };
+
+template<class T> T read_from_file(std::ifstream& input)
+{
+    T tmp;
+    input >> tmp;
+    return tmp;
+}
 
 #endif
