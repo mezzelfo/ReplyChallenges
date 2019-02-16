@@ -8,7 +8,7 @@
 typedef std::string Service;
 typedef std::string Country;
 
-class Region
+struct Region
 {
     std::string name;
     int availablePackages;
@@ -17,13 +17,13 @@ class Region
     std::map<Country,int> latencyPerCountry;
     friend std::istream& operator>>(std::ifstream& is, Region& r);
 };
-class Provider
+struct Provider
 {
     std::string name;
     std::vector<Region> regions;
     friend std::istream& operator>>(std::ifstream& is, Provider& p);
 };
-class Project
+struct Project
 {
     int basePenality;
     Country country;
@@ -35,6 +35,10 @@ template<class T> T read_from_file(std::ifstream& input)
 {
     T tmp;
     input >> tmp;
+    if(!input){
+        std::cerr << "Bad value!" << std::endl;
+        exit(EXIT_FAILURE);
+    }
     return tmp;
 }
 

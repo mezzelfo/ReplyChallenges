@@ -42,8 +42,20 @@ int main(int argc, char const *argv[])
         projects.push_back(read_from_file<Project>(inFile));
     projects.shrink_to_fit();
 
+    std::cout   << "Read " << providers.size() << " providers\n"
+                << "Read " << services.size() << " services\n"
+                << "Read " << countries.size() << " countries\n"
+                << "Read " << projects.size() << " projects" << std::endl;
 
+    std::map<Service,int> totalUnitesNeededPerServices;
+    std::map<Service,int> totalUnitesAvailablePerServices;
+    for(Project& P : projects)
+        for(Service& S: services)
+            totalUnitesNeededPerServices[S] += P.unitsNeededPerServices[S];
 
-
+    for(Provider& P : providers)
+        for(Region& R: P.regions)
+            for(Service& S: services)
+                totalUnitesAvailablePerServices[S] += R.availablePackages * R.packagesPerServices[S];
     return 0;
 }
