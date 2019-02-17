@@ -1,6 +1,3 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
 #include "tool.hpp"
 
 std::vector<Provider> providers;
@@ -13,16 +10,10 @@ int main(int argc, char const *argv[])
     std::ifstream inFile;
 
     if (argc != 2)
-    {
-        std::cerr << "Please use ./a.out <namefileinput>" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+        throw std::runtime_error("Please use ./a.out <namefileinput>");
     inFile.open(argv[1]);
     if (!inFile)
-    {
-        std::cerr << "Unable to open input file" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+        throw std::runtime_error("Unable to open input file");
     
     providers.reserve(read_from_file<int>(inFile));
     services.reserve(read_from_file<int>(inFile));
@@ -42,20 +33,9 @@ int main(int argc, char const *argv[])
         projects.push_back(read_from_file<Project>(inFile));
     projects.shrink_to_fit();
 
-    std::cout   << "Read " << providers.size() << " providers\n"
-                << "Read " << services.size() << " services\n"
-                << "Read " << countries.size() << " countries\n"
-                << "Read " << projects.size() << " projects" << std::endl;
+    std::sort(std::begin(projects), std::end(projects), [](Project a, Project b) {return a.total_units_needed() < b.total_units_needed(); });
 
-    std::map<Service,int> totalUnitesNeededPerServices;
-    std::map<Service,int> totalUnitesAvailablePerServices;
-    for(Project& P : projects)
-        for(Service& S: services)
-            totalUnitesNeededPerServices[S] += P.unitsNeededPerServices[S];
+    
 
-    for(Provider& P : providers)
-        for(Region& R: P.regions)
-            for(Service& S: services)
-                totalUnitesAvailablePerServices[S] += R.availablePackages * R.packagesPerServices[S];
     return 0;
 }

@@ -8,9 +8,9 @@ std::istream& operator>>(std::ifstream& is, Region& r)
     r.name = read_from_file<std::string>(is);
     r.availablePackages = read_from_file<int>(is);
     r.packageUnitCost = read_from_file<float>(is);
-    for(auto& s : services)
+    for(Service& s : services)
         r.packagesPerServices[s] = read_from_file<int>(is);
-    for(auto& c: countries)
+    for(Country& c: countries)
         r.latencyPerCountry[c] = read_from_file<int>(is);
     return is;
 }
@@ -29,8 +29,16 @@ std::istream& operator>>(std::ifstream& is, Project& p)
 {
     p.basePenality = read_from_file<int>(is);
     p.country = read_from_file<Country>(is);
-    for(auto& s : services)
+    for(Service& s : services)
         p.unitsNeededPerServices[s] = read_from_file<int>(is);
 
     return is;    
+}
+
+long long Project::total_units_needed()
+{
+    long long x = 0;
+    for(Service& s : services)
+        x += unitsNeededPerServices[s];
+    return x;
 }

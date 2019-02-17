@@ -105,16 +105,10 @@ int main(int argc, char const *argv[])
 {
     ifstream inFile;
     if (argc != 2)
-    {
-        cerr << "Please use ./a.out <namefileinput>" << endl;
-        exit(EXIT_FAILURE);
-    }
+        throw std::runtime_error("Please use ./a.out <namefileinput>");
     inFile.open(argv[1]);
     if (!inFile)
-    {
-        cerr << "Unable to open input file" << endl;
-        exit(EXIT_FAILURE);
-    }
+        throw std::runtime_error("Unable to open input file");
 
     Point startPoint, endPoint;
     int obsCount;
