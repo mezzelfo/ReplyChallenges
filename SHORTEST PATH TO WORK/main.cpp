@@ -8,7 +8,7 @@
 #include <utility>
 #include <queue>
 #include <math.h>
-#define INF 99999999999.0
+constexpr double INF = std::numeric_limits<double>::max();
 
 using namespace std;
 
@@ -158,10 +158,13 @@ int main(int argc, char const *argv[])
     while (!setds.empty()) 
     {
     	Point u = setds.begin()->second;
+    	if(u == endPoint)
+    		break;
     	setds.erase(setds.begin());
     	auto vis = visibleFrom(u, Vertices, obsV);
         for (Point& v: vis) 
         {
+        	if(v == endPoint) std::cout << "HEI" << endl;
             double weight = distance(u,v);
             if (dist[v] > dist[u] + weight) 
             { 
@@ -170,7 +173,7 @@ int main(int argc, char const *argv[])
                 dist[v] = dist[u] + weight; 
                 setds.insert(make_pair(dist[v], v)); 
                 parent[v] = u;
-            } 
+            }
         } 
     } 
 
