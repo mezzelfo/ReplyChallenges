@@ -7,15 +7,21 @@
 #include <map>
 typedef std::string Service;
 typedef std::string Country;
+typedef long long int num;
+
 
 struct Region
 {
     std::string name;
-    int availablePackages;
-    float packageUnitCost;
-    std::map<Service,int> packagesPerServices;
-    std::map<Country,int> latencyPerCountry;
+    num availablePackages;
+    double packageUnitCost;
+    std::map<Service,num> packagesPerServices;
+    std::map<Country,num> latencyPerCountry;
     friend std::istream& operator>>(std::ifstream& is, Region& r);
+    bool operator<(const Region& other) const
+    {
+        return name < other.name;
+    }
 };
 struct Provider
 {
@@ -25,10 +31,11 @@ struct Provider
 };
 struct Project
 {
-    int basePenality;
+    num basePenality;
     Country country;
-    std::map<Service,int> unitsNeededPerServices;
-    long long total_units_needed();
+    std::map<Service,num> unitsNeededPerServices;
+    num total_units_needed();
+    bool is_possible(std::map<Service,num> tot);
     friend std::istream& operator>>(std::ifstream& is, Project& p);
 };
 
@@ -40,5 +47,7 @@ template<class T> T read_from_file(std::ifstream& input)
         throw std::runtime_error("Read bad value from file");
     return tmp;
 }
+
+double RegionPenalty(Project& P, Region& R, num num_uses);
 
 #endif
