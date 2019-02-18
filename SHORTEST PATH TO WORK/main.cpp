@@ -148,7 +148,7 @@ int main(int argc, char const *argv[])
             if (needed[i]) Vertices.emplace(v[i]);
     }
 
-    
+    cout << "Number of nodes: "<<Vertices.size()<<endl;
     set< pair<double, Point> > setds;
     map<Point, double> dist;
     map<Point, Point> parent;
@@ -169,9 +169,9 @@ int main(int argc, char const *argv[])
             if (dist[v] > dist[u] + weight) 
             { 
                 if (dist[v] != INF) 
-                    setds.erase(setds.find(make_pair(dist[v], v))); 
+                    setds.erase(setds.find(make_pair(dist[v]+distance(v,endPoint), v))); 
                 dist[v] = dist[u] + weight; 
-                setds.insert(make_pair(dist[v], v)); 
+                setds.insert(make_pair(dist[v]+distance(v,endPoint), v)); 
                 parent[v] = u;
             }
         } 
