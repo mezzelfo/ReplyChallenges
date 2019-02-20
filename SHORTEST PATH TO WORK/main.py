@@ -32,26 +32,6 @@ class Triangle:
 		self.circoraggio = self.sides[0]*self.sides[1]*self.sides[2]/(4*ar)
 
 
-def sign (p1,p2,p3):
-	return (p1[0] - p3[0]) * (p2[1] - p3[1]) - (p2[0] - p3[0]) * (p1[1] - p3[1])
-
-def pointInTriangle(t,p):
-	d1 = sign(p, t.vertices[0],t.vertices[1])
-	d2 = sign(p, t.vertices[1],t.vertices[2])
-	d3 = sign(p, t.vertices[2],t.vertices[0])
-	has_neg = (d1 <= 0) or (d2 <= 0) or (d3 <= 0)
-	has_pos = (d1 >= 0) or (d2 >= 0) or (d3 >= 0)
-	return not(has_neg and has_pos)
-
-def connessi(t1,t2):
-	if distance(t1.circocentro, t2.circocentro) > t1.circoraggio + t2.circoraggio:
-		return False
-	if any([intersecate(t1,p) for p in t2.vertices]):
-		return True
-	if any([intersecate(t2,p) for p in t1.vertices]):
-		return True
-	return False
-
 #main
 obstacles = []
 start = 0
