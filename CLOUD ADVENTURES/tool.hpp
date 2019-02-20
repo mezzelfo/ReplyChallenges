@@ -5,6 +5,8 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <algorithm>
+#include <limits>
 typedef std::string Service;
 typedef std::string Country;
 typedef long long int num;

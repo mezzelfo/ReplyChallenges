@@ -38,8 +38,7 @@ int main(int argc, char const *argv[])
                 availability[S] += R.availablePackages * R.packagesPerServices[S];
 
     std::map<int, std::map<Region, num> > used_vec;
-    std::vector<std::string> outputs;
-    for (Project& P : projects) outputs.push_back("");
+    std::vector<std::string> outputs(projects.size(),"");
     int failed = 0;
     int done = 0;
 
