@@ -150,73 +150,43 @@ int main(int argc, char const *argv[])
     }
 
     cout << "Number of nodes: "<<Vertices.size()<<endl;
-    /*
-    function reconstruct_path(cameFrom, current)
-    
-    */
+    set< pair<double, Point> > setds;
+    map<Point, double> dist;
+    map<Point, Point> parent;
+    setds.insert(make_pair(0.0, startPoint)); 
+    for (auto& P : Vertices) dist[P] = INF;
+    dist[startPoint] = 0;
+    while (!setds.empty()) 
+    {
+    	Point u = setds.begin()->second;
+    	if(u == endPoint)
+    		break;
+    	setds.erase(setds.begin());
+    	auto vis = visibleFrom(u, Vertices, obsV);
+        for (Point& v: vis) 
+        {
+        	if(v == endPoint) std::cout << "HEI" << endl;
+            double weight = distance(u,v) + distance(v,endPoint) - distance(u,endPoint);
+            if (dist[v] > dist[u] + weight) 
+            { 
+                if (dist[v] != INF) 
+                    setds.erase(setds.find(make_pair(dist[v], v))); 
+                dist[v] = dist[u] + weight; 
+                setds.insert(make_pair(dist[v], v)); 
+                parent[v] = u;
+            }
+        } 
+    } 
 
     list<Point> shortestPath;
-
-    
-    set<Point> closedSet; // The set of nodes already evaluated
-    set<Point> openSet = {startPoint}; // The set of currently discovered nodes that are not evaluated yet. Initially, only the start node is known.
-    map<Point, Point> cameFrom; // For each node, which node it can most efficiently be reached from.
-    map<Point, double> gScore; // For each node, the cost of getting from the start node to that node.
-    for(const Point& P : Vertices) gScore[P] = INF;
-    gScore[startPoint] = 0; // The cost of going from start to start is zero.
-
-    map<Point, double> fScore; // For each node, the total cost of getting from the start node to the goal by passing by that node. That value is partly known, partly heuristic.
-    for(const Point& P : Vertices) fScore[P] = INF;
-    fScore[startPoint] = distance(startPoint, endPoint); // For the first node, that value is completely heuristic.
-
-    
-    
-    while(!openSet.empty())
+    Point p = endPoint;
+    do
     {
-    	Point current; //the node in openSet having the lowest fScore[] value
-    	double LOW = INF;
-    	for(const Point& P: openSet)
-    		if(fScore[P] < LOW)
-    		{
-    			LOW = fScore[P];
-    			current = P;
-    		}
-    	
-        if(current == endPoint)
-        {
-        	shortestPath.push_back(current);
-    		while(current != startPoint)
-    		{
-    			current = cameFrom[current];
-        		shortestPath.push_back(current);
-    		}
-    		break;
-        }
+        shortestPath.push_front(p);
+        p = parent[p];
+    }while(p != startPoint);
+    shortestPath.push_front(startPoint);
 
-        openSet.erase(current);
-        closedSet.emplace(current);
-
-        auto vis = visibleFrom(current, Vertices, obsV);
-        for (Point& v: vis)
-        {
-			if(closedSet.find(v) != closedSet.end())
-                continue;		// Ignore the neighbor which is already evaluated.
-
-            // The distance from start to a neighbor
-            double tentative_gScore = gScore[current] + distance(current, v);
-
-            if(openSet.find(v) == openSet.end())	// Discover a new node
-                openSet.emplace(v);
-            else if(tentative_gScore >= gScore[v])
-                continue;
-
-            // This path is the best until now. Record it!
-            cameFrom[v] = current;
-            gScore[v] = tentative_gScore;
-            fScore[v] = gScore[v] + distance(v, endPoint);
-        }
-    }
-         
     cout << shortestPath.size() << endl;
     for (auto& P: shortestPath)
         cout << P << endl;
