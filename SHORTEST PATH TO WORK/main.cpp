@@ -149,7 +149,7 @@ int main(int argc, char const *argv[])
             if (needed[i]) Vertices.emplace(v[i]);
     }
 
-    cout << "Number of nodes: "<<Vertices.size()<<endl;
+    //cout << "Number of nodes: "<<Vertices.size()<<endl;
     set< pair<double, Point> > setds;
     map<Point, double> dist;
     map<Point, Point> parent;
@@ -165,7 +165,6 @@ int main(int argc, char const *argv[])
     	auto vis = visibleFrom(u, Vertices, obsV);
         for (Point& v: vis) 
         {
-        	if(v == endPoint) std::cout << "HEI" << endl;
             double weight = distance(u,v) + distance(v,endPoint) - distance(u,endPoint);
             if (dist[v] > dist[u] + weight) 
             { 
