@@ -11,14 +11,20 @@ int main()
 	unsigned EventsCount, RoomsCount;
 	unsigned max_capacity;
 	float** WeightMatrix;
+	int check;
 
-	inputFile = fopen("data_5000_3.in","r");
+	inputFile = fopen("data_50000_10.in","r");
 	if (inputFile == NULL)
 	{
 		fprintf(stderr, "Errore nell'apertura del file\n");
 		exit(EXIT_FAILURE);
 	}
-	fscanf(inputFile, "%d %d", &EventsCount, &RoomsCount);
+	check = fscanf(inputFile, "%u %u", &EventsCount, &RoomsCount);
+	if (check!=2)
+	{
+		fprintf(stderr, "Errore nella lettura formattata del file\n");
+		exit(EXIT_FAILURE);
+	}
 	EventsArray = (Event*)malloc(sizeof(Event)*EventsCount);
 	RoomsArray = (Room*)malloc(sizeof(Room)*RoomsCount);
 	if ((EventsArray == NULL) || (RoomsArray == NULL))
@@ -31,18 +37,31 @@ int main()
 	}
 	for (unsigned i = 0; i < EventsCount; ++i)
 	{
-		fscanf(inputFile, "%s %d %d %d",
+		check = fscanf(inputFile, "%s %u %u %u",
 			EventsArray[i].name,
 			&EventsArray[i].start,
 			&EventsArray[i].end,
 			&EventsArray[i].participants);
+		if ((EventsArray[i].end < EventsArray[i].start)||(check!=4))
+		{
+			fprintf(stderr, "Errore nella lettura formattata del file\n");
+			free(EventsArray);
+			free(RoomsArray);
+			fclose(inputFile);
+			exit(EXIT_FAILURE);
+		}
 		EventsArray[i].duration = EventsArray[i].end - EventsArray[i].start;
 	}
 	for (unsigned i = 0; i < RoomsCount; ++i)
 	{
-		fscanf(inputFile, "%s %d",
+		check = fscanf(inputFile, "%s %u",
 			RoomsArray[i].name,
 			&RoomsArray[i].capacity);
+		if (check!=2)
+		{
+			fprintf(stderr, "Errore nella lettura formattata del file\n");
+			exit(EXIT_FAILURE);
+		}
 	}
 	fclose(inputFile);
 
