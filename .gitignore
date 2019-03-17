@@ -4,3 +4,4 @@ venv/
 */venv/*
 *.out
 .vscode/settings.json
+STANDARD CODE CHALLENGE/.vscode/

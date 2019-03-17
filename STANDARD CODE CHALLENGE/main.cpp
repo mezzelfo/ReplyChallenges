@@ -6,13 +6,30 @@
 #include <fstream>
 #include "structures.hpp"
 
-int N, M, C, R;
+
 std::vector<CustomerHQ> hqVec;
+int N, M, C, R;
 int** map;
 const std::map<char, int> symbolCost = {{'#', 999999999},{'~', 800},{'*', 200},{'+', 150},{'X', 120},{'_',100},{'H',70},{'T',50}};
 const int delta[4][3] = {{0,+1,'D'},{0,-1,'U'},{+1,0,'R'},{-1,0,'L'}};
 unsigned long score = 0;
         
+void esplora_dintorni(int ox, int oy, int benza, Matrix* costmap)
+{
+    for(auto& d: delta)
+    {
+        int x = ox + d[0];
+        int y = oy + d[1];
+        if ((x<0) or (x>=N)) continue;
+        if ((y<0) or (y>=M)) continue;
+        if (benza - map[x][y] > (costmap->at(x,y)))
+        {
+            costmap->at(x,y) = benza - map[x][y];
+            esplora_dintorni(x,y,benza-map[x][y],costmap);
+        }
+    }
+}
+
 
 int main(int argc, char const *argv[])
 {
@@ -78,11 +95,27 @@ int main(int argc, char const *argv[])
         }
     }
     
-    
-    std::cout << "Score: " << score << '\n';
+    Matrix TotalCostMap(N,M);
+    for (auto& hq : hqVec)
+    {
+        Matrix costmap(N,M);
+        esplora_dintorni(hq.x,hq.y,hq.reward,&costmap);
+        //std::cout<<hq.reward<<std::endl;
+        //hq.positiveZone = costmap;
+        for (int i = 0; i < N; i++)
+            for (int j = 0; j < M; j++)
+                TotalCostMap.at(i,j) += costmap.at(i,j);
+    }
 
-    for (int i = 0; i < N; ++i) delete [] map[i];
-    delete [] map;
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < M; j++)
+                std::cout << TotalCostMap.at(i,j) << ' ';
+        std::cout << '\n';
+    }
+            
+
+    //std::cout << "Score: " << score << '\n';
     return 0;
 }
 
