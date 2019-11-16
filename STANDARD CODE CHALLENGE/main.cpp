@@ -33,7 +33,8 @@ void esplora_dintorni(int ox, int oy, int benza, Matrix* costmap)
 
 int main(int argc, char const *argv[])
 {
-    if (argc != 2) throw std::runtime_error("Parametri non corretti. Usa ./a.out fileinput.txt");
+    if (argc != 2)
+        throw std::runtime_error("Parametri non corretti. Usa ./a.out fileinput.txt");
     
     // Opening File
     std::ifstream finput;
@@ -87,11 +88,6 @@ int main(int argc, char const *argv[])
             int y = hq.y + d[1];
             if ((x<0) or (x >= N)) continue;
             if ((y<0) or (y >= M)) continue;
-            if ((map[x][y] != symbolCost.at('#')) and (R > 0)) {
-                //std::cout << '\t' << x << ' ' << y << ' ' << (char)d[2] << '\n';
-                score += hq.reward;
-                R--;
-            }
         }
     }
     
@@ -107,11 +103,33 @@ int main(int argc, char const *argv[])
                 TotalCostMap.at(i,j) += costmap.at(i,j);
     }
 
-    for (int i = 0; i < N; i++)
+    /*for (int i = 0; i < N; i++)
     {
         for (int j = 0; j < M; j++)
                 std::cout << TotalCostMap.at(i,j) << ' ';
         std::cout << '\n';
+    }*/
+
+    std::vector<std::pair<int,int>> positions;
+    for(int r = 0; r < R; r++)
+    {
+        
+        std::pair<int,int> pos = std::make_pair(0,0);
+        int maxrew = 0;
+        for (int i = 0; i < N; i++)
+        {
+            for (int j = 0; j < M; j++)
+            {
+                if (TotalCostMap.at(i,j) > maxrew)
+                {
+                    pos = std::make_pair(i,j);
+                    maxrew = TotalCostMap.at(i,j);
+                }
+            }
+        }
+        std::cout << "Piazzo in ("<<pos.first<<", "<<pos.second<<")\n";
+        TotalCostMap.at(pos.first,pos.second) = 0;
+
     }
             
 
