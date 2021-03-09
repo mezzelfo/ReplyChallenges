@@ -1,0 +1,9 @@
+Hi Luigino, this is the alpha version of the app.
+I had to build it quickly since... You know what is going on!
+The app should work fine but probably some stuff is missing here and there.
+I tested the build against the standard emulator with 6.0. 
+In case it doesn't work properly I'm sure you will know what you have to do.
+Don't worry, I added few things so no one can use the app except us.
+
+Take care Luigino.
+See you soon <3

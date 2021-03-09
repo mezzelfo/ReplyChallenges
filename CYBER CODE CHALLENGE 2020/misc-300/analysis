@@ -1,0 +1,771 @@
+#include <elf.h>
+
+/*
+ * ELF dump of 'elf'
+ *     250517 (0x3D295) bytes
+ */
+
+Elf64_Dyn dumpedelf_dyn_0[];
+struct {
+	Elf64_Ehdr ehdr;
+	Elf64_Phdr phdrs[12];
+	Elf64_Shdr shdrs[30];
+	Elf64_Dyn *dyns;
+} dumpedelf_0 = {
+
+.ehdr = {
+	.e_ident = { /* (EI_NIDENT bytes) */
+		/* [0] EI_MAG:        */ 0x7F,'E','L','F',
+		/* [4] EI_CLASS:      */ 2 , /* (ELFCLASS64) */
+		/* [5] EI_DATA:       */ 1 , /* (ELFDATA2LSB) */
+		/* [6] EI_VERSION:    */ 1 , /* (EV_CURRENT) */
+		/* [7] EI_OSABI:      */ 0 , /* (ELFOSABI_NONE) */
+		/* [8] EI_ABIVERSION: */ 0 ,
+		/* [9-15] EI_PAD:     */ 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+	},
+	.e_type      = 3          , /* (ET_DYN) */
+	.e_machine   = 62         , /* (EM_X86_64) */
+	.e_version   = 1          , /* (EV_CURRENT) */
+	.e_entry     = 0x5150     , /* (start address at runtime) */
+	.e_phoff     = 64         , /* (bytes into file) */
+	.e_shoff     = 246144     , /* (bytes into file) */
+	.e_flags     = 0x0        ,
+	.e_ehsize    = 64         , /* (bytes) */
+	.e_phentsize = 56         , /* (bytes) */
+	.e_phnum     = 12         , /* (program headers) */
+	.e_shentsize = 64         , /* (bytes) */
+	.e_shnum     = 30         , /* (section headers) */
+	.e_shstrndx  = 29        
+},
+
+.phdrs = {
+/* Program Header #0 0x40 */
+{
+	.p_type   = 6          , /* [PT_PHDR] */
+	.p_offset = 64         , /* (bytes into file) */
+	.p_vaddr  = 0x40       , /* (virtual addr at runtime) */
+	.p_paddr  = 0x40       , /* (physical addr at runtime) */
+	.p_filesz = 672        , /* (bytes in file) */
+	.p_memsz  = 672        , /* (bytes in mem at runtime) */
+	.p_flags  = 0x4        , /* PF_R */
+	.p_align  = 8          , /* (min mem alignment in bytes) */
+},
+/* Program Header #1 0x78 */
+{
+	.p_type   = 3          , /* [PT_INTERP] */
+	.p_offset = 736        , /* (bytes into file) */
+	.p_vaddr  = 0x2E0      , /* (virtual addr at runtime) */
+	.p_paddr  = 0x2E0      , /* (physical addr at runtime) */
+	.p_filesz = 28         , /* (bytes in file) */
+	.p_memsz  = 28         , /* (bytes in mem at runtime) */
+	.p_flags  = 0x4        , /* PF_R */
+	.p_align  = 1          , /* (min mem alignment in bytes) */
+},
+/* Program Header #2 0xB0 */
+{
+	.p_type   = 1          , /* [PT_LOAD] */
+	.p_offset = 0          , /* (bytes into file) */
+	.p_vaddr  = 0x0        , /* (virtual addr at runtime) */
+	.p_paddr  = 0x0        , /* (physical addr at runtime) */
+	.p_filesz = 18208      , /* (bytes in file) */
+	.p_memsz  = 18208      , /* (bytes in mem at runtime) */
+	.p_flags  = 0x4        , /* PF_R */
+	.p_align  = 4096       , /* (min mem alignment in bytes) */
+},
+/* Program Header #3 0xE8 */
+{
+	.p_type   = 1          , /* [PT_LOAD] */
+	.p_offset = 20480      , /* (bytes into file) */
+	.p_vaddr  = 0x5000     , /* (virtual addr at runtime) */
+	.p_paddr  = 0x5000     , /* (physical addr at runtime) */
+	.p_filesz = 168269     , /* (bytes in file) */
+	.p_memsz  = 168269     , /* (bytes in mem at runtime) */
+	.p_flags  = 0x5        , /* PF_R | PF_X */
+	.p_align  = 4096       , /* (min mem alignment in bytes) */
+},
+/* Program Header #4 0x120 */
+{
+	.p_type   = 1          , /* [PT_LOAD] */
+	.p_offset = 192512     , /* (bytes into file) */
+	.p_vaddr  = 0x2F000    , /* (virtual addr at runtime) */
+	.p_paddr  = 0x2F000    , /* (physical addr at runtime) */
+	.p_filesz = 44740      , /* (bytes in file) */
+	.p_memsz  = 44740      , /* (bytes in mem at runtime) */
+	.p_flags  = 0x4        , /* PF_R */
+	.p_align  = 4096       , /* (min mem alignment in bytes) */
+},
+/* Program Header #5 0x158 */
+{
+	.p_type   = 1          , /* [PT_LOAD] */
+	.p_offset = 237344     , /* (bytes into file) */
+	.p_vaddr  = 0x3AF20    , /* (virtual addr at runtime) */
+	.p_paddr  = 0x3AF20    , /* (physical addr at runtime) */
+	.p_filesz = 8472       , /* (bytes in file) */
+	.p_memsz  = 8864       , /* (bytes in mem at runtime) */
+	.p_flags  = 0x6        , /* PF_R | PF_W */
+	.p_align  = 4096       , /* (min mem alignment in bytes) */
+},
+/* Program Header #6 0x190 */
+{
+	.p_type   = 2          , /* [PT_DYNAMIC] */
+	.p_offset = 243456     , /* (bytes into file) */
+	.p_vaddr  = 0x3C700    , /* (virtual addr at runtime) */
+	.p_paddr  = 0x3C700    , /* (physical addr at runtime) */
+	.p_filesz = 560        , /* (bytes in file) */
+	.p_memsz  = 560        , /* (bytes in mem at runtime) */
+	.p_flags  = 0x6        , /* PF_R | PF_W */
+	.p_align  = 8          , /* (min mem alignment in bytes) */
+},
+/* Program Header #7 0x1C8 */
+{
+	.p_type   = 4          , /* [PT_NOTE] */
+	.p_offset = 764        , /* (bytes into file) */
+	.p_vaddr  = 0x2FC      , /* (virtual addr at runtime) */
+	.p_paddr  = 0x2FC      , /* (physical addr at runtime) */
+	.p_filesz = 68         , /* (bytes in file) */
+	.p_memsz  = 68         , /* (bytes in mem at runtime) */
+	.p_flags  = 0x4        , /* PF_R */
+	.p_align  = 4          , /* (min mem alignment in bytes) */
+
+	/* note section dump:
+	 * Elf64_Nhdr note0 = {
+	 * 	.n_namesz = 4, (bytes) [GNU]
+	 * 	.n_descsz = 20, (bytes) [ 81 8C 89 82 81 C1 37 4C 01 AB 2A 4B 29 2A B5 84 CF 09 A9 21 ]
+	 * 	.n_type   = 3, [NT_GNU_BUILD_ID]
+	 * };
+	 * Elf64_Nhdr note21 = {
+	 * 	.n_namesz = 4, (bytes) [GNU]
+	 * 	.n_descsz = 16, (bytes) [ 00 00 00 00 03 00 00 00 02 00 00 00 00 00 00 00 ]
+	 * 	.n_type   = 1, [NT_GNU_ABI_TAG]
+	 * };
+	 */
+},
+/* Program Header #8 0x200 */
+{
+	.p_type   = 7          , /* [PT_TLS] */
+	.p_offset = 237344     , /* (bytes into file) */
+	.p_vaddr  = 0x3AF20    , /* (virtual addr at runtime) */
+	.p_paddr  = 0x3AF20    , /* (physical addr at runtime) */
+	.p_filesz = 0          , /* (bytes in file) */
+	.p_memsz  = 152        , /* (bytes in mem at runtime) */
+	.p_flags  = 0x4        , /* PF_R */
+	.p_align  = 32         , /* (min mem alignment in bytes) */
+},
+/* Program Header #9 0x238 */
+{
+	.p_type   = 1685382480 , /* [PT_GNU_EH_FRAME] */
+	.p_offset = 210128     , /* (bytes into file) */
+	.p_vaddr  = 0x334D0    , /* (virtual addr at runtime) */
+	.p_paddr  = 0x334D0    , /* (physical addr at runtime) */
+	.p_filesz = 3452       , /* (bytes in file) */
+	.p_memsz  = 3452       , /* (bytes in mem at runtime) */
+	.p_flags  = 0x4        , /* PF_R */
+	.p_align  = 4          , /* (min mem alignment in bytes) */
+},
+/* Program Header #10 0x270 */
+{
+	.p_type   = 1685382481 , /* [PT_GNU_STACK] */
+	.p_offset = 0          , /* (bytes into file) */
+	.p_vaddr  = 0x0        , /* (virtual addr at runtime) */
+	.p_paddr  = 0x0        , /* (physical addr at runtime) */
+	.p_filesz = 0          , /* (bytes in file) */
+	.p_memsz  = 0          , /* (bytes in mem at runtime) */
+	.p_flags  = 0x6        , /* PF_R | PF_W */
+	.p_align  = 16         , /* (min mem alignment in bytes) */
+},
+/* Program Header #11 0x2A8 */
+{
+	.p_type   = 1685382482 , /* [PT_GNU_RELRO] */
+	.p_offset = 237344     , /* (bytes into file) */
+	.p_vaddr  = 0x3AF20    , /* (virtual addr at runtime) */
+	.p_paddr  = 0x3AF20    , /* (physical addr at runtime) */
+	.p_filesz = 8416       , /* (bytes in file) */
+	.p_memsz  = 8416       , /* (bytes in mem at runtime) */
+	.p_flags  = 0x4        , /* PF_R */
+	.p_align  = 1          , /* (min mem alignment in bytes) */
+},
+},
+
+.shdrs = {
+ /* corrupt section header strings table ! */ },
+
+.dyns = dumpedelf_dyn_0,
+};
+Elf64_Dyn dumpedelf_dyn_0[] = {
+/* Dynamic tag #0 'DT_RUNPATH' 0x3B700 */
+{
+	.d_tag     = 0x1D       ,
+	.d_un      = {
+		.d_val = 0xD00000027 ,
+		.d_ptr = 0xD00000027 ,
+	},
+},
+/* Dynamic tag #1 'UNKNOWN_TYPE' 0x3B710 */
+{
+	.d_tag     = 0x3048B    ,
+	.d_un      = {
+		.d_val = 0x1D       ,
+		.d_ptr = 0x1D       ,
+	},
+},
+/* Dynamic tag #2 'UNKNOWN_TYPE' 0x3B720 */
+{
+	.d_tag     = 0xD0000002F ,
+	.d_un      = {
+		.d_val = 0x304D1    ,
+		.d_ptr = 0x304D1    ,
+	},
+},
+/* Dynamic tag #3 'DT_SONAME' 0x3B730 */
+{
+	.d_tag     = 0xE        ,
+	.d_un      = {
+		.d_val = 0x30506    ,
+		.d_ptr = 0x30506    ,
+	},
+},
+/* Dynamic tag #4 'UNKNOWN_TYPE' 0x3B740 */
+{
+	.d_tag     = 0x25       ,
+	.d_un      = {
+		.d_val = 0xD00000098 ,
+		.d_ptr = 0xD00000098 ,
+	},
+},
+/* Dynamic tag #5 'UNKNOWN_TYPE' 0x3B750 */
+{
+	.d_tag     = 0x30506    ,
+	.d_un      = {
+		.d_val = 0x25       ,
+		.d_ptr = 0x25       ,
+	},
+},
+/* Dynamic tag #6 'UNKNOWN_TYPE' 0x3B760 */
+{
+	.d_tag     = 0xD0000009C ,
+	.d_un      = {
+		.d_val = 0x30558    ,
+		.d_ptr = 0x30558    ,
+	},
+},
+/* Dynamic tag #7 'DT_RUNPATH' 0x3B770 */
+{
+	.d_tag     = 0x1D       ,
+	.d_un      = {
+		.d_val = 0x900000129 ,
+		.d_ptr = 0x900000129 ,
+	},
+},
+/* Dynamic tag #8 'UNKNOWN_TYPE' 0x3B780 */
+{
+	.d_tag     = 0x30558    ,
+	.d_un      = {
+		.d_val = 0x1D       ,
+		.d_ptr = 0x1D       ,
+	},
+},
+/* Dynamic tag #9 'UNKNOWN_TYPE' 0x3B790 */
+{
+	.d_tag     = 0xD00000131 ,
+	.d_un      = {
+		.d_val = 0x30558    ,
+		.d_ptr = 0x30558    ,
+	},
+},
+/* Dynamic tag #10 'DT_RUNPATH' 0x3B7A0 */
+{
+	.d_tag     = 0x1D       ,
+	.d_un      = {
+		.d_val = 0x900000134 ,
+		.d_ptr = 0x900000134 ,
+	},
+},
+/* Dynamic tag #11 'UNKNOWN_TYPE' 0x3B7B0 */
+{
+	.d_tag     = 0x30558    ,
+	.d_un      = {
+		.d_val = 0x1D       ,
+		.d_ptr = 0x1D       ,
+	},
+},
+/* Dynamic tag #12 'UNKNOWN_TYPE' 0x3B7C0 */
+{
+	.d_tag     = 0x90000013B ,
+	.d_un      = {
+		.d_val = 0x30575    ,
+		.d_ptr = 0x30575    ,
+	},
+},
+/* Dynamic tag #13 'UNKNOWN_TYPE' 0x3B7D0 */
+{
+	.d_tag     = 0x23       ,
+	.d_un      = {
+		.d_val = 0x50000000A ,
+		.d_ptr = 0x50000000A ,
+	},
+},
+/* Dynamic tag #14 'UNKNOWN_TYPE' 0x3B7E0 */
+{
+	.d_tag     = 0x305DF    ,
+	.d_un      = {
+		.d_val = 0x1A       ,
+		.d_ptr = 0x1A       ,
+	},
+},
+/* Dynamic tag #15 'UNKNOWN_TYPE' 0x3B7F0 */
+{
+	.d_tag     = 0x90000005B ,
+	.d_un      = {
+		.d_val = 0x10420    ,
+		.d_ptr = 0x10420    ,
+	},
+},
+/* Dynamic tag #16 'DT_RELASZ' 0x3B800 */
+{
+	.d_tag     = 0x8        ,
+	.d_un      = {
+		.d_val = 0x8        ,
+		.d_ptr = 0x8        ,
+	},
+},
+/* Dynamic tag #17 'UNKNOWN_TYPE' 0x3B810 */
+{
+	.d_tag     = 0x106E0    ,
+	.d_un      = {
+		.d_val = 0x106E0    ,
+		.d_ptr = 0x106E0    ,
+	},
+},
+/* Dynamic tag #18 'UNKNOWN_TYPE' 0x3B820 */
+{
+	.d_tag     = 0x10390    ,
+	.d_un      = {
+		.d_val = 0x10420    ,
+		.d_ptr = 0x10420    ,
+	},
+},
+/* Dynamic tag #19 'DT_RELASZ' 0x3B830 */
+{
+	.d_tag     = 0x8        ,
+	.d_un      = {
+		.d_val = 0x8        ,
+		.d_ptr = 0x8        ,
+	},
+},
+/* Dynamic tag #20 'UNKNOWN_TYPE' 0x3B840 */
+{
+	.d_tag     = 0x106F0    ,
+	.d_un      = {
+		.d_val = 0x106F0    ,
+		.d_ptr = 0x106F0    ,
+	},
+},
+/* Dynamic tag #21 'UNKNOWN_TYPE' 0x3B850 */
+{
+	.d_tag     = 0x103A0    ,
+	.d_un      = {
+		.d_val = 0x30683    ,
+		.d_ptr = 0x30683    ,
+	},
+},
+/* Dynamic tag #22 'UNKNOWN_TYPE' 0x3B860 */
+{
+	.d_tag     = 0x55       ,
+	.d_un      = {
+		.d_val = 0x2B0000016E ,
+		.d_ptr = 0x2B0000016E ,
+	},
+},
+/* Dynamic tag #23 'UNKNOWN_TYPE' 0x3B870 */
+{
+	.d_tag     = 0x306D8    ,
+	.d_un      = {
+		.d_val = 0x0        ,
+		.d_ptr = 0x0        ,
+	},
+},
+/* Dynamic tag #24 'UNKNOWN_TYPE' 0x3B880 */
+{
+	.d_tag     = 0x306D8    ,
+	.d_un      = {
+		.d_val = 0x2        ,
+		.d_ptr = 0x2        ,
+	},
+},
+/* Dynamic tag #25 'UNKNOWN_TYPE' 0x3B890 */
+{
+	.d_tag     = 0x306D8    ,
+	.d_un      = {
+		.d_val = 0x0        ,
+		.d_ptr = 0x0        ,
+	},
+},
+/* Dynamic tag #26 'UNKNOWN_TYPE' 0x3B8A0 */
+{
+	.d_tag     = 0x30718    ,
+	.d_un      = {
+		.d_val = 0x3        ,
+		.d_ptr = 0x3        ,
+	},
+},
+/* Dynamic tag #27 'UNKNOWN_TYPE' 0x3B8B0 */
+{
+	.d_tag     = 0x30768    ,
+	.d_un      = {
+		.d_val = 0x6        ,
+		.d_ptr = 0x6        ,
+	},
+},
+/* Dynamic tag #28 'UNKNOWN_TYPE' 0x3B8C0 */
+{
+	.d_tag     = 0x306D8    ,
+	.d_un      = {
+		.d_val = 0x0        ,
+		.d_ptr = 0x0        ,
+	},
+},
+/* Dynamic tag #29 'UNKNOWN_TYPE' 0x3B8D0 */
+{
+	.d_tag     = 0x307A8    ,
+	.d_un      = {
+		.d_val = 0x9        ,
+		.d_ptr = 0x9        ,
+	},
+},
+/* Dynamic tag #30 'UNKNOWN_TYPE' 0x3B8E0 */
+{
+	.d_tag     = 0x30670    ,
+	.d_un      = {
+		.d_val = 0x10       ,
+		.d_ptr = 0x10       ,
+	},
+},
+/* Dynamic tag #31 'UNKNOWN_TYPE' 0x3B8F0 */
+{
+	.d_tag     = 0x307B2    ,
+	.d_un      = {
+		.d_val = 0x1        ,
+		.d_ptr = 0x1        ,
+	},
+},
+/* Dynamic tag #32 'UNKNOWN_TYPE' 0x3B900 */
+{
+	.d_tag     = 0x307B1    ,
+	.d_un      = {
+		.d_val = 0x1        ,
+		.d_ptr = 0x1        ,
+	},
+},
+/* Dynamic tag #33 'UNKNOWN_TYPE' 0x3B910 */
+{
+	.d_tag     = 0x307DD    ,
+	.d_un      = {
+		.d_val = 0x4B       ,
+		.d_ptr = 0x4B       ,
+	},
+},
+/* Dynamic tag #34 'UNKNOWN_TYPE' 0x3B920 */
+{
+	.d_tag     = 0xD00000071 ,
+	.d_un      = {
+		.d_val = 0x10A90    ,
+		.d_ptr = 0x10A90    ,
+	},
+},
+/* Dynamic tag #35 'DT_SYMBOLIC' 0x3B930 */
+{
+	.d_tag     = 0x10       ,
+	.d_un      = {
+		.d_val = 0x8        ,
+		.d_ptr = 0x8        ,
+	},
+},
+/* Dynamic tag #36 'UNKNOWN_TYPE' 0x3B940 */
+{
+	.d_tag     = 0x11A20    ,
+	.d_un      = {
+		.d_val = 0x10A70    ,
+		.d_ptr = 0x10A70    ,
+	},
+},
+/* Dynamic tag #37 'UNKNOWN_TYPE' 0x3B950 */
+{
+	.d_tag     = 0x3205E    ,
+	.d_un      = {
+		.d_val = 0x46       ,
+		.d_ptr = 0x46       ,
+	},
+},
+/* Dynamic tag #38 'UNKNOWN_TYPE' 0x3B960 */
+{
+	.d_tag     = 0x2F00000796 ,
+	.d_un      = {
+		.d_val = 0x3205E    ,
+		.d_ptr = 0x3205E    ,
+	},
+},
+/* Dynamic tag #39 'UNKNOWN_TYPE' 0x3B970 */
+{
+	.d_tag     = 0x46       ,
+	.d_un      = {
+		.d_val = 0x2F000007E2 ,
+		.d_ptr = 0x2F000007E2 ,
+	},
+},
+/* Dynamic tag #40 'UNKNOWN_TYPE' 0x3B980 */
+{
+	.d_tag     = 0x3205E    ,
+	.d_un      = {
+		.d_val = 0x46       ,
+		.d_ptr = 0x46       ,
+	},
+},
+/* Dynamic tag #41 'UNKNOWN_TYPE' 0x3B990 */
+{
+	.d_tag     = 0x2F0000082F ,
+	.d_un      = {
+		.d_val = 0x320A4    ,
+		.d_ptr = 0x320A4    ,
+	},
+},
+/* Dynamic tag #42 'UNKNOWN_TYPE' 0x3B9A0 */
+{
+	.d_tag     = 0x4A       ,
+	.d_un      = {
+		.d_val = 0x2100000534 ,
+		.d_ptr = 0x2100000534 ,
+	},
+},
+/* Dynamic tag #43 'UNKNOWN_TYPE' 0x3B9B0 */
+{
+	.d_tag     = 0x320A4    ,
+	.d_un      = {
+		.d_val = 0x4A       ,
+		.d_ptr = 0x4A       ,
+	},
+},
+/* Dynamic tag #44 'UNKNOWN_TYPE' 0x3B9C0 */
+{
+	.d_tag     = 0x1400000540 ,
+	.d_un      = {
+		.d_val = 0x320A4    ,
+		.d_ptr = 0x320A4    ,
+	},
+},
+/* Dynamic tag #45 'UNKNOWN_TYPE' 0x3B9D0 */
+{
+	.d_tag     = 0x4A       ,
+	.d_un      = {
+		.d_val = 0x2100000540 ,
+		.d_ptr = 0x2100000540 ,
+	},
+},
+/* Dynamic tag #46 'UNKNOWN_TYPE' 0x3B9E0 */
+{
+	.d_tag     = 0x23090    ,
+	.d_un      = {
+		.d_val = 0x1        ,
+		.d_ptr = 0x1        ,
+	},
+},
+/* Dynamic tag #47 'DT_NEEDED' 0x3B9F0 */
+{
+	.d_tag     = 0x1        ,
+	.d_un      = {
+		.d_val = 0x2CCB0    ,
+		.d_ptr = 0x2CCB0    ,
+	},
+},
+/* Dynamic tag #48 'UNKNOWN_TYPE' 0x3BA00 */
+{
+	.d_tag     = 0x320A4    ,
+	.d_un      = {
+		.d_val = 0x4A       ,
+		.d_ptr = 0x4A       ,
+	},
+},
+/* Dynamic tag #49 'UNKNOWN_TYPE' 0x3BA10 */
+{
+	.d_tag     = 0x26000001B0 ,
+	.d_un      = {
+		.d_val = 0x32147    ,
+		.d_ptr = 0x32147    ,
+	},
+},
+/* Dynamic tag #50 'UNKNOWN_TYPE' 0x3BA20 */
+{
+	.d_tag     = 0x53       ,
+	.d_un      = {
+		.d_val = 0x2700000071 ,
+		.d_ptr = 0x2700000071 ,
+	},
+},
+/* Dynamic tag #51 'UNKNOWN_TYPE' 0x3BA30 */
+{
+	.d_tag     = 0x32147    ,
+	.d_un      = {
+		.d_val = 0x53       ,
+		.d_ptr = 0x53       ,
+	},
+},
+/* Dynamic tag #52 'UNKNOWN_TYPE' 0x3BA40 */
+{
+	.d_tag     = 0x4800000074 ,
+	.d_un      = {
+		.d_val = 0x321E6    ,
+		.d_ptr = 0x321E6    ,
+	},
+},
+/* Dynamic tag #53 'UNKNOWN_TYPE' 0x3BA50 */
+{
+	.d_tag     = 0x4F       ,
+	.d_un      = {
+		.d_val = 0x1A0000006D ,
+		.d_ptr = 0x1A0000006D ,
+	},
+},
+/* Dynamic tag #54 'UNKNOWN_TYPE' 0x3BA60 */
+{
+	.d_tag     = 0x321E6    ,
+	.d_un      = {
+		.d_val = 0x4F       ,
+		.d_ptr = 0x4F       ,
+	},
+},
+/* Dynamic tag #55 'UNKNOWN_TYPE' 0x3BA70 */
+{
+	.d_tag     = 0xD00000072 ,
+	.d_un      = {
+		.d_val = 0x321E6    ,
+		.d_ptr = 0x321E6    ,
+	},
+},
+/* Dynamic tag #56 'UNKNOWN_TYPE' 0x3BA80 */
+{
+	.d_tag     = 0x4F       ,
+	.d_un      = {
+		.d_val = 0x3E00000354 ,
+		.d_ptr = 0x3E00000354 ,
+	},
+},
+/* Dynamic tag #57 'UNKNOWN_TYPE' 0x3BA90 */
+{
+	.d_tag     = 0x321E6    ,
+	.d_un      = {
+		.d_val = 0x4F       ,
+		.d_ptr = 0x4F       ,
+	},
+},
+/* Dynamic tag #58 'UNKNOWN_TYPE' 0x3BAA0 */
+{
+	.d_tag     = 0x2C000003DC ,
+	.d_un      = {
+		.d_val = 0x284F0    ,
+		.d_ptr = 0x284F0    ,
+	},
+},
+/* Dynamic tag #59 'DT_RELASZ' 0x3BAB0 */
+{
+	.d_tag     = 0x8        ,
+	.d_un      = {
+		.d_val = 0x8        ,
+		.d_ptr = 0x8        ,
+	},
+},
+/* Dynamic tag #60 'UNKNOWN_TYPE' 0x3BAC0 */
+{
+	.d_tag     = 0x28580    ,
+	.d_un      = {
+		.d_val = 0x28520    ,
+		.d_ptr = 0x28520    ,
+	},
+},
+/* Dynamic tag #61 'UNKNOWN_TYPE' 0x3BAD0 */
+{
+	.d_tag     = 0x28530    ,
+	.d_un      = {
+		.d_val = 0x322B3    ,
+		.d_ptr = 0x322B3    ,
+	},
+},
+/* Dynamic tag #62 'UNKNOWN_TYPE' 0x3BAE0 */
+{
+	.d_tag     = 0x46       ,
+	.d_un      = {
+		.d_val = 0x1300000168 ,
+		.d_ptr = 0x1300000168 ,
+	},
+},
+/* Dynamic tag #63 'UNKNOWN_TYPE' 0x3BAF0 */
+{
+	.d_tag     = 0x284F0    ,
+	.d_un      = {
+		.d_val = 0x0        ,
+		.d_ptr = 0x0        ,
+	},
+},
+/* Dynamic tag #64 'DT_NEEDED' 0x3BB00 */
+{
+	.d_tag     = 0x1        ,
+	.d_un      = {
+		.d_val = 0x2D760    ,
+		.d_ptr = 0x2D760    ,
+	},
+},
+/* Dynamic tag #65 'UNKNOWN_TYPE' 0x3BB10 */
+{
+	.d_tag     = 0x3232C    ,
+	.d_un      = {
+		.d_val = 0x13       ,
+		.d_ptr = 0x13       ,
+	},
+},
+/* Dynamic tag #66 'UNKNOWN_TYPE' 0x3BB20 */
+{
+	.d_tag     = 0x1C0000024A ,
+	.d_un      = {
+		.d_val = 0x3233F    ,
+		.d_ptr = 0x3233F    ,
+	},
+},
+/* Dynamic tag #67 'DT_JMPREL' 0x3BB30 */
+{
+	.d_tag     = 0x17       ,
+	.d_un      = {
+		.d_val = 0x500000217 ,
+		.d_ptr = 0x500000217 ,
+	},
+},
+/* Dynamic tag #68 'UNKNOWN_TYPE' 0x3BB40 */
+{
+	.d_tag     = 0x32802    ,
+	.d_un      = {
+		.d_val = 0x3C       ,
+		.d_ptr = 0x3C       ,
+	},
+},
+/* Dynamic tag #69 'UNKNOWN_TYPE' 0x3BB50 */
+{
+	.d_tag     = 0x3283E    ,
+	.d_un      = {
+		.d_val = 0x16       ,
+		.d_ptr = 0x16       ,
+	},
+},
+/* Dynamic tag #70 'UNKNOWN_TYPE' 0x3BB60 */
+{
+	.d_tag     = 0x500001462 ,
+	.d_un      = {
+		.d_val = 0x32854    ,
+		.d_ptr = 0x32854    ,
+	},
+},
+/* Dynamic tag #71 'DT_PLTRELSZ' 0x3BB70 */
+{
+	.d_tag     = 0x2        ,
+	.d_un      = {
+		.d_val = 0x32800    ,
+		.d_ptr = 0x32800    ,
+	},
+},
+};

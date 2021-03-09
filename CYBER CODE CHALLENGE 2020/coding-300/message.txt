@@ -1,0 +1,162 @@
+ELF Header:
+  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 
+  Class:                             ELF64
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              DYN (Shared object file)
+  Machine:                           Advanced Micro Devices X86-64
+  Version:                           0x1
+  Entry point address:               0x5150
+  Start of program headers:          64 (bytes into file)
+  Start of section headers:          246144 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               64 (bytes)
+  Size of program headers:           56 (bytes)
+  Number of program headers:         12
+  Size of section headers:           64 (bytes)
+  Number of section headers:         30
+  Section header string table index: 29
+readelf: Warning: Section 0 has an out of range sh_link value of 17301504
+readelf: Warning: Section 1 has an out of range sh_link value of 866648064
+readelf: Warning: Section 2 has an out of range sh_link value of 291504128
+readelf: Warning: Section 5 has an out of range sh_link value of 1349910528
+readelf: Warning: Section 6 has an out of range sh_link value of 2320498688
+readelf: Warning: Section 7 has an out of range sh_link value of 2824863744
+readelf: Warning: Section 9 has an out of range sh_link value of 2419064832
+readelf: Warning: Section 10 has an out of range sh_link value of 3816816640
+readelf: Warning: Section 12 has an out of range sh_link value of 2618294272
+readelf: Warning: Section 13 has an out of range sh_link value of 2410676224
+readelf: Warning: Section 15 has an out of range sh_link value of 536870912
+readelf: Warning: Section 20 has an out of range sh_link value of 723
+readelf: Warning: Section 22 has an out of range sh_link value of 164944
+readelf: Warning: Section 23 has an out of range sh_link value of 43847680
+readelf: Error: Reading 12173229792782450690 bytes extends past end of file for string table
+readelf: Error: Section 7 has invalid sh_entsize of 00000000f0a00000
+readelf: Error: (Using the expected size of 24 for the rest of this dump)
+readelf: Error: Section 8 has invalid sh_entsize of 000000028ea00000
+readelf: Error: (Using the expected size of 24 for the rest of this dump)
+readelf: Error: Section 10 has invalid sh_entsize of 0000000000000000
+readelf: Error: (Using the expected size of 24 for the rest of this dump)
+readelf: Error: Section 11 has invalid sh_entsize of 0000000000000000
+readelf: Error: (Using the expected size of 24 for the rest of this dump)
+readelf: Error: Section 13 has invalid sh_entsize of 00000002cc200000
+readelf: Error: (Using the expected size of 24 for the rest of this dump)
+readelf: Error: Section 14 has invalid sh_entsize of 00000000eb500000
+readelf: Error: (Using the expected size of 24 for the rest of this dump)
+
+Section Headers:
+  [Nr] Name              Type             Address           Offset
+       Size              EntSize          Flags  Link  Info  Align
+  [ 0] <no-strings>      NULL             0000000000030000  3c9300000
+       0000000000020000  0000000000070000          17301504     0     1310720
+  [ 1] <no-strings>      NULL             0000000000070000  12700000
+       0000000000080000  0000000000180000 xop      866648064     0     589824
+  [ 2] <no-strings>      NULL             00006ffffffb0000  80000010000
+       00006ffffffe0000  0000000000050000   x      291504128     0     123145302245376
+  [ 3] <no-strings>      00006fff: <unkn  00006ffffff90000  01e20000
+       0000000000000000  0000000000000000 xxxol       0     0     0
+  [ 4] <no-strings>      NULL             0000000000000000  00000000
+       0000000000000000  0000000000000000           0     0     16223567872
+  [ 5] <no-strings>      NULL             0000000050460000  50560000
+       0000000050660000  0000000050960000 xxolp      1349910528     0     1350959104
+readelf: Warning: [ 6]: Unexpected value (2) in info field.
+  [ 6] <no-strings>      NULL             0000000050c60000  50d60000
+       00000002bd100000  0000000276500000 xxolp      2320498688     2     0
+readelf: Warning: [ 7]: Link field (2824863744) should index a string section.
+  [ 7] <no-strings>      SYMTAB           000000008b900000  286600000
+       0000000000000000  0000000000000018 olp      2824863744     2     10808721408
+readelf: Warning: [ 8]: Link field (0) should index a string section.
+  [ 8] <no-strings>      SYMTAB           0000000000000000  00000000
+       0000000000000000  0000000000000018  op       0     0     11856248832
+readelf: Warning: [ 9]: Unexpected value (2) in info field.
+  [ 9] <no-strings>      NULL             0000000283e00000  eeb00000
+       000000010e300000  0000000000000000 oEx      2419064832     2     2586836992
+readelf: Warning: [10]: Link field (3816816640) should index a string section.
+  [10] <no-strings>      SYMTAB           000000028ed00000  11dd00000
+       0000000000000000  0000000000000018 olp      3816816640     0     4735369216
+readelf: Warning: [11]: Link field (0) should index a string section.
+readelf: Warning: Size of section 11 is larger than the entire file!
+  [11] <no-strings>      SYMTAB           000000010e300000  91000000
+       00000002c9800000  0000000000000018           0     0     0
+  [12] <no-strings>      NULL             0000000000000000  00000000
+       0000000000000000  0000000000000000 olEx      2618294272     0     12081692672
+readelf: Warning: [13]: Link field (2410676224) should index a string section.
+readelf: Warning: Size of section 13 is larger than the entire file!
+  [13] <no-strings>      SYMTAB           0000000000000000  00000000
+       00000000cf800000  0000000000000018  ox      2410676224     2     1806696448
+readelf: Warning: [14]: Link field (0) should index a string section.
+readelf: Warning: Size of section 14 is larger than the entire file!
+  [14] <no-strings>      SYMTAB           000000009b900000  00000000
+       0000000098400000  0000000000000018           0     0     10995367936
+  [15] <no-strings>      NULL             00000002a2300000  2c1900000
+       000002d0dcdb0000  0000eb1000000000  oE      536870912   262     118596311187456
+readelf: Warning: [16]: Unexpected value (14474080) in info field.
+  [16] <no-strings>      NULL             0000f11000000000  00000000
+       0000000000000000  0000000000000000           0   14474080     76068612456054784
+readelf: Warning: Size of section 17 is larger than the entire file!
+  [17] <no-strings>      029a0000: <unkn  0240600000000000  ea500000000000
+       1cdcdb0000000000  bcf0000000000000 xxxxxx       1     0     10434840336617439232
+  [18] <no-strings>      LOUSER+0x4f8000  0000000000000000  00000000
+       0000000000000000  d200000000000000   A       0     0     0
+  [19] <no-strings>      NULL             96e0000000000002  00000000
+       9a40000000000000  95f0000000000000 xxxxx       0     0     16312037850335936512
+readelf: Warning: [20]: Unexpected value (1342177280) in info field.
+  [20] <no-strings>      NULL             60000000000000fa  a0000000000000a2
+       4000000000000232  00000000000002b0 xxxxxxxxxxx      723   1342177280     6917529027641082522
+  [21] <no-strings>      LOUSER+0x200000  00000000000000f6  00000000
+       0000000000000000  db00000000000000 WXMLxxx       0     0     0
+  [22] <no-strings>      NULL             0000000000000000  00000000
+       000000000002d630  000000000002a880 SOTxx      164944     0     0
+  [23] <no-strings>      NULL             00000000028eb000  02a96000
+       00000000010b6000  0000000000000000          43847680     0     47276032
+  [24] <no-strings>      NULL             0000000000000000  010db000
+       0000000000000000  0000000000000000 xxxo       0     0     42897408
+  [25] <no-strings>      NULL             0000000000954000  028a3000
+       000000000093e000  00000002a8dcdb00           0     0     44617728
+  [26] <no-strings>      NULL             000002b150000000  10b40000000
+       0000000000000000  0000b0dcdb000000 xxxolp       0     0     671088640000
+readelf: Warning: [27]: Unexpected value (10096640) in info field.
+  [27] <no-strings>      NULL             0000d4e000000000  2dddbd000000000
+       00d6e00000000000  b190000000000002 xxxxxx       0   10096640     10294343641308594176
+readelf: Warning: Size of section 28 is larger than the entire file!
+  [28] <no-strings>      05f00000: <unkn  c370000000000000  9790000000000000
+       bdf0000000000002  0000000000000000   W       0     0     0
+  [29] <no-strings>      LOUSER+0x800000  0e10000000000002  9070000000000001
+       a8f0000000000002  0000000000000002 Axxxxxxx       2   3553624064     12524510563717349378
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  l (large), p (processor specific)
+
+Program Headers:
+  Type           Offset             VirtAddr           PhysAddr
+                 FileSiz            MemSiz              Flags  Align
+  PHDR           0x0000000000000040 0x0000000000000040 0x0000000000000040
+                 0x00000000000002a0 0x00000000000002a0  R      0x8
+  INTERP         0x00000000000002e0 0x00000000000002e0 0x00000000000002e0
+                 0x000000000000001c 0x000000000000001c  R      0x1
+      [Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]
+  LOAD           0x0000000000000000 0x0000000000000000 0x0000000000000000
+                 0x0000000000004720 0x0000000000004720  R      0x1000
+  LOAD           0x0000000000005000 0x0000000000005000 0x0000000000005000
+                 0x000000000002914d 0x000000000002914d  R E    0x1000
+  LOAD           0x000000000002f000 0x000000000002f000 0x000000000002f000
+                 0x000000000000aec4 0x000000000000aec4  R      0x1000
+  LOAD           0x0000000000039f20 0x000000000003af20 0x000000000003af20
+                 0x0000000000002118 0x00000000000022a0  RW     0x1000
+  DYNAMIC        0x000000000003b700 0x000000000003c700 0x000000000003c700
+                 0x0000000000000230 0x0000000000000230  RW     0x8
+readelf: Error: no .dynamic section in the dynamic segment
+  NOTE           0x00000000000002fc 0x00000000000002fc 0x00000000000002fc
+                 0x0000000000000044 0x0000000000000044  R      0x4
+  TLS            0x0000000000039f20 0x000000000003af20 0x000000000003af20
+                 0x0000000000000000 0x0000000000000098  R      0x20
+  GNU_EH_FRAME   0x00000000000334d0 0x00000000000334d0 0x00000000000334d0
+                 0x0000000000000d7c 0x0000000000000d7c  R      0x4
+  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000
+                 0x0000000000000000 0x0000000000000000  RW     0x10
+  GNU_RELRO      0x0000000000039f20 0x000000000003af20 0x000000000003af20
+                 0x00000000000020e0 0x00000000000020e0  R      0x1

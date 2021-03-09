@@ -1,0 +1,17 @@
+[global]
+sigrok version=0.5.2
+
+[device 1]
+capturefile=logic-1
+total probes=8
+samplerate=500 kHz
+total analog=0
+probe1=P8_45
+probe2=P8_46
+probe3=P8_43
+probe4=P8_44
+probe5=P8_41
+probe6=P8_42
+probe7=P8_39
+probe8=P8_40
+unitsize=1
