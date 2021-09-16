@@ -1,14 +1,11 @@
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <list>
 #include <set>
-#include <array>
 #include <map>
-#include <utility>
-#include <queue>
-#include <math.h>
-#include <limits>
+#include <string>
+#include "IndexedHeap.hpp"
+
 constexpr double INF = std::numeric_limits<double>::max();
 
 using namespace std;
@@ -87,9 +84,9 @@ bool are_points_visible(const Point& p0, const Point& p1, const vector<Triangle>
     return true;
 }
 
-inline double distance(const Point& P1, const Point& P2)
+inline unsigned distance(const Point& P1, const Point& P2)
 {
-    return sqrt((P1.first-P2.first)*(P1.first-P2.first)+(P1.second-P2.second)*(P1.second-P2.second));;
+    return (P1.first-P2.first)*(P1.first-P2.first)+(P1.second-P2.second)*(P1.second-P2.second);;
 }
 
 list<Point> visibleFrom(const Point& u, const set<Point>& Vertices, const vector<Triangle>& obsV)
@@ -105,9 +102,10 @@ list<Point> visibleFrom(const Point& u, const set<Point>& Vertices, const vector
 int main(int argc, char const *argv[])
 {
     ifstream inFile;
-    if (argc != 2)
-        throw std::runtime_error("Please use ./a.out <namefileinput>");
-    inFile.open(argv[1]);
+    //if (argc != 2)
+    //    throw std::runtime_error("Please use ./a.out <namefileinput>");
+    //inFile.open(argv[1]);
+    inFile.open("input_1.txt");
     if (!inFile)
         throw std::runtime_error("Unable to open input file");
 
@@ -138,44 +136,79 @@ int main(int argc, char const *argv[])
     Vertices.emplace(startPoint);
     Vertices.emplace(endPoint);
     for(auto& tri1 : obsV)
-    {
-        const auto v = points_near_triangle(tri1);
-        array<bool,v.size()> needed;
-        needed.fill(true);
-        for(auto& tri2 : obsV)
-            for(unsigned i = 0; i < v.size(); i++)
-                if (needed[i] && is_point_in_triangle(v[i],tri2)) needed[i] = false;
-        for(unsigned i = 0; i < v.size(); i++)
-            if (needed[i]) Vertices.emplace(v[i]);
-    }
-
-    //cout << "Number of nodes: "<<Vertices.size()<<endl;
-    set< pair<double, Point> > setds;
-    map<Point, double> dist;
-    map<Point, Point> parent;
-    setds.insert(make_pair(0.0, startPoint)); 
-    for (auto& P : Vertices) dist[P] = INF;
-    dist[startPoint] = 0;
-    while (!setds.empty()) 
-    {
-    	Point u = setds.begin()->second;
-    	if(u == endPoint)
-    		break;
-    	setds.erase(setds.begin());
-    	auto vis = visibleFrom(u, Vertices, obsV);
-        for (Point& v: vis) 
+        for(auto& p: points_near_triangle(tri1))
         {
-            double weight = distance(u,v) + distance(v,endPoint) - distance(u,endPoint);
-            if (dist[v] > dist[u] + weight) 
-            { 
-                if (dist[v] != INF) 
-                    setds.erase(setds.find(make_pair(dist[v], v))); 
-                dist[v] = dist[u] + weight; 
-                setds.insert(make_pair(dist[v], v)); 
-                parent[v] = u;
+            bool obscured = false;
+            for(auto& tri2: obsV)
+            {
+                if(is_point_in_triangle(p, tri2))
+                {
+                    obscured = true;
+                    break;
+                }
             }
-        } 
-    } 
+            if(!obscured)
+                Vertices.emplace(p);
+        }
+
+    cout << "Number of nodes: "<<Vertices.size() << endl << flush;
+
+    IndexedHeap<Point, unsigned> heap;
+    map<Point, Point> parent;
+    map<Point, unsigned> gScore;
+    
+    heap.insertOrUpdate(startPoint, 0);
+    gScore[startPoint] = 0;
+
+    while (!heap.empty())
+    {
+        Point current = heap.extract();
+        
+        if (current == endPoint)
+        {
+            cout << "Found"<<endl;
+            break;
+        }
+        
+        for (Point& neighbor: visibleFrom(current, Vertices, obsV))
+        {
+            unsigned w = gScore[current] + distance(current, neighbor);
+            if (w < gScore[neighbor])
+            {
+                parent[neighbor] = current;
+                gScore[neighbor] = w;
+                heap.insertOrUpdate(neighbor, w + distance(neighbor, endPoint));
+            }
+        }
+    }
+    cout << "Finished" << endl << flush;
+
+    // set< pair<double, Point> > setds;
+    // map<Point, double> dist;
+    // map<Point, Point> parent;
+    // setds.insert(make_pair(0.0, startPoint)); 
+    // for (auto& P : Vertices) dist[P] = INF;
+    // dist[startPoint] = 0;
+    // while (!setds.empty()) 
+    // {
+    // 	Point u = setds.begin()->second;
+    // 	if(u == endPoint)
+    // 		break;
+    // 	setds.erase(setds.begin());
+    // 	auto vis = visibleFrom(u, Vertices, obsV);
+    //     for (Point& v: vis) 
+    //     {
+    //         double weight = distance(u,v) + distance(v,endPoint) - distance(u,endPoint);
+    //         if (dist[v] > dist[u] + weight) 
+    //         { 
+    //             if (dist[v] != INF) 
+    //                 setds.erase(setds.find(make_pair(dist[v], v))); 
+    //             dist[v] = dist[u] + weight; 
+    //             setds.insert(make_pair(dist[v], v)); 
+    //             parent[v] = u;
+    //         }
+    //     } 
+    // } 
 
     list<Point> shortestPath;
     Point p = endPoint;
