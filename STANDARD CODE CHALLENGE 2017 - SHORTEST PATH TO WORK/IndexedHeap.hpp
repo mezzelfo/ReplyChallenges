@@ -1,8 +1,5 @@
-#include <unordered_map>
 #include <map>
 #include <vector>
-#include <iostream>
-using namespace std;
 
 template <typename T, typename F>
 class IndexedHeap
@@ -12,7 +9,10 @@ public:
     std::map<T, F> priorities;
     std::vector<T> heap;
 
-
+    IndexedHeap(std::set<T>& initKeys)
+    {
+        heap.reserve(initKeys.size());
+    }
 
     bool empty()
     {
@@ -41,12 +41,12 @@ public:
         else
         {
             heap.push_back(obj);
-            i = heap.size()-1;
+            i = heap.size() - 1;
             indices[obj] = i;
         }
         while (i > 0)
         {
-            if (priorities[heap[i]] < priorities[heap[i/2]])
+            if (priorities[heap[i]] < priorities[heap[i / 2]])
             {
                 swap(i, i / 2);
                 i = i / 2;
@@ -63,9 +63,13 @@ public:
         priorities.erase(answer);
         heap[0] = heap.back();
         heap.pop_back();
+        size_t n = heap.size();
+        if (n == 0)
+            return answer;
+
         indices[heap[0]] = 0;
         size_t i = 0;
-        size_t n = heap.size();
+
         while (2 * i < n)
         {
             if ((2 * i + 1 > n) or (priorities[heap[2 * i]] < priorities[heap[2 * i + 1]]))
