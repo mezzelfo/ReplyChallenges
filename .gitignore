@@ -3,5 +3,5 @@
 venv/
 */venv/*
 *.out
-.vscode/*
-STANDARD CODE CHALLENGE/.vscode/
+/.vscode
+*/.vscode/*
