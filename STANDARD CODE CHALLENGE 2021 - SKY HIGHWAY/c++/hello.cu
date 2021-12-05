@@ -1,9 +1,15 @@
 #include <stdio.h>
 
-#define W 1200
-#define H 1200
+struct Problem
+{
+    int H, W, N, M, R;
+    int *latency_map;
+    int *connection_speed_map;
+    int *antennas_range;
+    int *antennas_speed;
+};
 
-void read_file(const char *filename, int *N, int *M, int *R, int latency_map[H][W], int connection_speed_map[H][W], int **antennas_range, int **antennas_speed)
+Problem read_file(const char *filename)
 {
     FILE *fileptr = fopen(filename, "r");
     if (!fileptr)
@@ -12,36 +18,43 @@ void read_file(const char *filename, int *N, int *M, int *R, int latency_map[H][
         exit(-1);
     }
 
-    fscanf(fileptr, "%*d %*d %d %d %d", N, M, R);
-    for (int i = 0; i < *N; i++)
-    {
-        int c, r, l, s;
-        fscanf(fileptr, "%d %d %d %d\n", &c, &r, &l, &s);
-        latency_map[r][c] = l;
-        connection_speed_map[r][c] = s;
-    }
+    Problem P;
 
-    *antennas_range = (int *)malloc(*M * sizeof(int));
-    *antennas_speed = (int *)malloc(*M * sizeof(int));
+    fscanf(fileptr, "%d %d %d %d %d", &(P.W), &(P.H), &(P.N), &(P.M), &(P.R));
 
-    if ((*antennas_range == NULL) || (*antennas_speed == NULL))
+    //Allocation
+    P.latency_map = (int *)calloc(P.W * P.H, sizeof(int));
+    P.connection_speed_map = (int *)calloc(P.W * P.H, sizeof(int));
+    P.antennas_range = (int *)malloc(P.M * sizeof(int));
+    P.antennas_speed = (int *)malloc(P.M * sizeof(int));
+
+    if ((P.latency_map == NULL) || (P.connection_speed_map == NULL) || (P.antennas_range == NULL) || (P.antennas_speed == NULL))
     {
         printf("ERROR: Unable to malloc\n");
         exit(-2);
     }
-    
 
-    for (int i = 0; i < *M; i++)
+    // Filling data structures
+    for (int i = 0; i < P.N; i++)
+    {
+        int c, r, l, s;
+        fscanf(fileptr, "%d %d %d %d\n", &c, &r, &l, &s);
+        P.latency_map[P.W * r + c] = l;
+        P.connection_speed_map[P.W * r + c] = s;
+    }
+    for (int i = 0; i < P.M; i++)
     {
         int r, s;
         fscanf(fileptr, "%d %d\n", &r, &s);
-        (*antennas_range)[i] = r;
-        (*antennas_speed)[i] = s;
+        P.antennas_range[i] = r;
+        P.antennas_speed[i] = s;
     }
     fclose(fileptr);
+
+    return P;
 }
 
-__global__ void optimisticEval(const int *latency_map, const int *connection_speed_map, int *optimistic_score_map, const int ant_range, const int ant_speed)
+__global__ void optimisticEval(const int *latency_map, const int *connection_speed_map, int *optimistic_score_map, const int ant_range, const int ant_speed, const int W, const int H)
 {
     const int r = blockIdx.x;
     const int c = threadIdx.x;
@@ -64,41 +77,37 @@ __global__ void optimisticEval(const int *latency_map, const int *connection_spe
 
 int main(int argc, char const *argv[])
 {
-    int latency_map[H][W] = {0};
-    int connection_speed_map[H][W] = {0};
-    int optimistic_score_map[H][W] = {0};
-    int *antennas_range;
-    int *antennas_speed;
-
-    int N, M, R;
     printf("Inizio lettura file\n");
-    read_file(argv[1], &N, &M, &R, latency_map, connection_speed_map, &antennas_range, &antennas_speed);
+    Problem P = read_file(argv[1]);
     printf("File letto correttamente\n");
 
-    int *dev_latency_map, *dev_connection_speed_map, *dev_optimistic_score_map;
-    cudaMalloc((void **)&dev_latency_map, W * H * sizeof(int));
-    cudaMalloc((void **)&dev_connection_speed_map, W * H * sizeof(int));
-    cudaMalloc((void **)&dev_optimistic_score_map, W * H * sizeof(int));
-    cudaMemcpy(dev_latency_map, latency_map, W * H * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(dev_connection_speed_map, connection_speed_map, W * H * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(dev_optimistic_score_map, optimistic_score_map, W * H * sizeof(int), cudaMemcpyHostToDevice);
+    int *optimistic_score_map = (int*)malloc(P.W * P.H * sizeof(int));
 
+    int *dev_latency_map, *dev_connection_speed_map, *dev_optimistic_score_map;
+    cudaMalloc((void **)&(dev_latency_map), P.W * P.H * sizeof(int));
+    cudaMalloc((void **)&dev_connection_speed_map, P.W * P.H * sizeof(int));
+    cudaMalloc((void **)&dev_optimistic_score_map, P.W * P.H * sizeof(int));
+    cudaMemcpy(dev_latency_map, P.latency_map, P.W * P.H * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_connection_speed_map, P.connection_speed_map, P.W * P.H * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_optimistic_score_map, optimistic_score_map, P.W * P.H * sizeof(int), cudaMemcpyHostToDevice);
+
+    
     long optimistic_score = 0;
-    for (int a = 0; a < M; a++)
+    for (int a = 0; a < P.M; a++)
     {
-        int ant_range = antennas_range[a];
-        int ant_speed = antennas_speed[a];
-        optimisticEval<<<H, W>>>(dev_latency_map, dev_connection_speed_map, dev_optimistic_score_map, ant_range, ant_speed);
-        cudaMemcpy(optimistic_score_map, dev_optimistic_score_map, W * H * sizeof(int), cudaMemcpyDeviceToHost);
+        int ant_range = P.antennas_range[a];
+        int ant_speed = P.antennas_speed[a];
+        optimisticEval<<<P.H, P.W>>>(dev_latency_map, dev_connection_speed_map, dev_optimistic_score_map, ant_range, ant_speed, P.W, P.H);
+        cudaMemcpy(optimistic_score_map, dev_optimistic_score_map, P.W * P.H * sizeof(int), cudaMemcpyDeviceToHost);
 
         long int contrib = 0;
-        for (int r = 0; r < H; r++)
+        for (int r = 0; r < P.H; r++)
         {
-            for (int c = 0; c < W; c++)
+            for (int c = 0; c < P.W; c++)
             {
-                if (optimistic_score_map[r][c] > contrib)
+                if (optimistic_score_map[P.W * r + c] > contrib)
                 {
-                    contrib = optimistic_score_map[r][c];
+                    contrib = optimistic_score_map[P.W * r + c];
                 }
             }
         }
