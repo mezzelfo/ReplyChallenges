@@ -1,5 +1,4 @@
 #include <stdio.h>
-//#define PESSIMISTIC_DIM (512)
 
 struct Problem
 {
@@ -57,11 +56,8 @@ Problem read_file(const char *filename)
 
 __global__ void optimisticEval(const Problem dev_P, const int ant_range, const int ant_speed, int *optimistic_score_map)
 {
-    const int r = blockIdx.x;
-    const int c = threadIdx.x;
-
-    //const int r = (blockIdx.x * blockDim.x) + threadIdx.x;
-    //const int c = (blockIdx.y * blockDim.y) + threadIdx.y;
+    const int r = (blockIdx.x * blockDim.x) + threadIdx.x;
+    const int c = (blockIdx.y * blockDim.y) + threadIdx.y;
 
     int sum = 0;
     for (int rr = max(0, r - ant_range); rr <= min(dev_P.H - 1, r + ant_range); rr++)
@@ -80,10 +76,6 @@ __global__ void optimisticEval(const Problem dev_P, const int ant_range, const i
     optimistic_score_map[dev_P.W * r + c] = sum;
 }
 
-int cmpfunc(const void *a, const void *b)
-{
-    return (*(int *)a - *(int *)b);
-}
 
 int main(int argc, char const *argv[])
 {
@@ -100,27 +92,24 @@ int main(int argc, char const *argv[])
 
     // Output buffers
     int *optimistic_score_map, *dev_optimistic_score_map;
-    //optimistic_score_map = (int *)malloc(P.W * P.H * sizeof(int));
     cudaHostAlloc((void **)&optimistic_score_map, P.W * P.H * sizeof(int), cudaHostAllocDefault);
+    cudaMalloc((void **)&dev_optimistic_score_map, P.W * P.H * sizeof(int));
 
     cudaMalloc((void **)&(dev_P.latency_map), P.W * P.H * sizeof(int));
     cudaMalloc((void **)&(dev_P.connection_speed_map), P.W * P.H * sizeof(int));
-    cudaMalloc((void **)&dev_optimistic_score_map, P.W * P.H * sizeof(int));
     cudaMemcpy(dev_P.latency_map, P.latency_map, P.W * P.H * sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(dev_P.connection_speed_map, P.connection_speed_map, P.W * P.H * sizeof(int), cudaMemcpyHostToDevice);
 
-    //long int best_scores[PESSIMISTIC_DIM] = {0};
-    //long int *cumulative_optimistic_score_map = (long int *)malloc(P.W * P.H * sizeof(long int));
-    //int *antennas_contrib = (int*)malloc(P.M * sizeof(int));
+    int *antennas_pos = (int*)malloc(P.M * sizeof(int));
+
+    const dim3 threadsPerBlock(8, 8);
+    const dim3 numBlocks(P.W / threadsPerBlock.x, P.H / threadsPerBlock.y);
     long int total = 0;
     for (int a = 0; a < P.M; a++)
     {
-        printf("%d/%d\n", a, P.M);
-        int ant_range = P.antennas_range[a];
-        int ant_speed = P.antennas_speed[a];
-        //optimisticEval<<<P.H, P.W>>>(dev_P, ant_range, ant_speed, dev_optimistic_score_map);
-        dim3 threadsPerBlock(32, 32);
-        dim3 numBlocks(P.W / threadsPerBlock.x, P.H / threadsPerBlock.y);
+        //printf("%d/%d\n", a, P.M);
+        const int ant_range = P.antennas_range[a];
+        const int ant_speed = P.antennas_speed[a];
         optimisticEval<<<numBlocks, threadsPerBlock>>>(dev_P, ant_range, ant_speed, dev_optimistic_score_map);
         cudaMemcpy(optimistic_score_map, dev_optimistic_score_map, P.W * P.H * sizeof(int), cudaMemcpyDeviceToHost);
         int max_val = 0;
@@ -129,69 +118,27 @@ int main(int argc, char const *argv[])
             if (optimistic_score_map[i] > max_val)
             {
                 max_val = optimistic_score_map[i];
+                antennas_pos[a] = i;
             }
         }
         total += max_val;
-        //antennas_contrib[a] = max_val;
-        /*qsort(optimistic_score_map, P.W * P.H, sizeof(int), cmpfunc);
-
-        for (size_t i = 0; i < P.H * P.W; i++)
-        {
-            cumulative_optimistic_score_map[i] += optimistic_score_map[i];
-        }*/
-
-        /*long int best_contribs[PESSIMISTIC_DIM] = {0};
-        for (int r = 0; r < P.H; r++)
-        {
-            for (int c = 0; c < P.W; c++)
-            {
-                int v = optimistic_score_map[P.W * r + c];
-                if (v > best_contribs[0])
-                {
-                    int new_v = 1;
-                    for (int i = 0; i < PESSIMISTIC_DIM; i++)
-                    {
-                        if (best_contribs[i] == v)
-                        {
-                            new_v = 0;
-                            break;
-                        }
-                    }
-                    if (new_v)
-                    {
-                        best_contribs[0] = v;
-                        qsort(best_contribs, PESSIMISTIC_DIM, sizeof(long), cmpfunc);
-                    }
-                }
-            }
-        }
-        for (int i = 0; i < PESSIMISTIC_DIM; i++)
-        {
-            best_scores[i] += best_contribs[i];
-        }*/
     }
-    /*for (int i = PESSIMISTIC_DIM - 1; i >= 0; i--)
+
+    printf("total: %ld\n",total);
+
+    FILE* fout = fopen("fout.csv","w");
+    for (int a = 0; a < P.M; a++)
     {
-        //printf("%d-th optimistic_score: %ld\n", PESSIMISTIC_DIM-i, best_scores[i]);
-        printf("%ld, ", best_scores[i]);
-    }*/
-
-    // FILE *fout = fopen("fout.csv", "w");
-
-    // for (int a = 0; a < P.M; a++)
-    // {
-    //     fprintf(fout, "%d,", antennas_contrib[a]);
-    // }
-
-    /*for (size_t i = 0; i < P.H * P.W; i++)
-    {
-        fprintf(fout, "%ld,", cumulative_optimistic_score_map[i]);
+        fprintf(fout,"%d,",antennas_pos[a]);
     }
-    free(cumulative_optimistic_score_map);*/
+    fclose(fout);
 
-    //fclose(fout);
-
-    printf("%ld\n", total);
+    FILE* fmapout = fopen("fmapout.csv","w");
+    for (size_t i = 0; i < P.H * P.W; i++)
+    {
+        fprintf(fmapout,"%d,",optimistic_score_map[i]);
+    }
+    fclose(fmapout);
 
     free(P.latency_map);
     free(P.connection_speed_map);
@@ -201,9 +148,9 @@ int main(int argc, char const *argv[])
     cudaFree(dev_P.latency_map);
     cudaFree(dev_P.connection_speed_map);
 
-    cudaFreeHost(optimistic_score_map);
-    free(optimistic_score_map);
-    //cudaFree(dev_optimistic_score_map);
+    free(antennas_pos);
 
+    cudaFreeHost(optimistic_score_map);
+    
     return 0;
 }

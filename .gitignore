@@ -5,3 +5,5 @@ venv/
 *.out
 /.vscode
 */.vscode/*
+STANDARD CODE CHALLENGE 2021 - SKY HIGHWAY/c++/hello
+*.csv
