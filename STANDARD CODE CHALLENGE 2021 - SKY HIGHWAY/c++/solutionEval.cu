@@ -88,7 +88,7 @@ __global__ void solutionEval(const Problem dev_P, const int *antennas_positions,
             if (dist <= dev_P.antennas_range[a])
             {
                 int contrib = dev_P.buildings_connection_speed[build_idx] * dev_P.antennas_speed[a] - dev_P.buildings_latency[build_idx] * dist;
-                if (contrib > max_contribution)
+                if ((contrib > max_contribution) | (antenna_idx == -1))
                 {
                     max_contribution = contrib;
                     antenna_idx = a;
