@@ -18,7 +18,8 @@ struct Problem
 
 struct Solution
 {
-    int *antenna_position;
+    int *antennas_position;
+    int *antennas_score;
     long int score;
 };
 
@@ -76,11 +77,11 @@ Problem read_file(const char *filename)
     return P;
 }
 
-__global__ void solutionEval(const Problem dev_P, const int *antennas_positions, int *building_score)
+__global__ void solutionEval(const Problem dev_P, const int *antennas_positions, int *building_score, int *building_antenna)
 {
     const int build_idx = blockIdx.x * blockDim.x + threadIdx.x;
     int max_contribution = 0;
-    int connected = 0;
+    int connected_antenna = -1;
     for (size_t a = 0; a < dev_P.M; a++)
     {
         //Naive implementation
@@ -102,16 +103,36 @@ __global__ void solutionEval(const Problem dev_P, const int *antennas_positions,
             if (dist <= dev_P.antennas_range[a])
             {
                 int contrib = dev_P.buildings_connection_speed[build_idx] * dev_P.antennas_speed[a] - dev_P.buildings_latency[build_idx] * dist;
-                if ((contrib > max_contribution) | (connected == 0))
+                if ((contrib > max_contribution) | (connected_antenna == -1))
                 {
                     max_contribution = contrib;
-                    connected = 1;
+                    connected_antenna = 1;
                 }
             }
         }
     }
     building_score[build_idx] = max_contribution;
+    building_antenna[build_idx] = connected_antenna;
     //printf("Chiamata GPU per building %d\nMax contribution %d\n Best antenna %d\n\n", build_idx, max_contribution, antenna_idx);
+}
+
+__global__ void getAntennasScore(const Problem dev_P, const int *antennas_positions, const int *building_antenna, int *antennas_score)
+{
+    const int ant_idx = blockIdx.x * blockDim.x + threadIdx.x;
+    const int r = antennas_positions[2 * ant_idx];
+    const int c = antennas_positions[2 * ant_idx + 1];
+    const int s = dev_P.antennas_speed[ant_idx];
+    //const int R = dev_P.antennas_range[ant_idx];
+    long int contrib = 0;
+    for (size_t b = 0; b < dev_P.N; b++)
+    {
+        if (building_antenna[b] == ant_idx)
+        {
+            const int dist = abs(dev_P.buildings_c[b] - c) + abs(dev_P.buildings_r[b] - r);
+            contrib += dev_P.buildings_connection_speed[b] * s - dev_P.buildings_latency[b] * dist;
+        }
+    }
+    antennas_score[ant_idx] = contrib;
 }
 
 int main(int argc, char const *argv[])
@@ -144,21 +165,24 @@ int main(int argc, char const *argv[])
 
     // Output buffers
     int *building_score;
-    int *dev_antennas_positions, *dev_building_score;
+    int *dev_antennas_positions, *dev_building_score, *dev_building_antenna, *dev_antennas_score;
     cudaMalloc((void **)&dev_antennas_positions, 2 * P.M * sizeof(int));
     cudaHostAlloc((void **)&building_score, P.N * sizeof(int), cudaHostAllocDefault);
     cudaMalloc((void **)&dev_building_score, P.N * sizeof(int));
+    cudaMalloc((void **)&dev_building_antenna, P.N * sizeof(int));
+    cudaMalloc((void **)&dev_antennas_score, P.M * sizeof(int));
 
     srand(time(NULL));
 
     Solution *population = (Solution *)malloc(POPULATION * sizeof(Solution));
     for (size_t p = 0; p < POPULATION; p++)
     {
-        population[p].antenna_position = (int *)malloc(2 * P.M * sizeof(int));
+        population[p].antennas_position = (int *)malloc(2 * P.M * sizeof(int));
+        population[p].antennas_score = (int *)malloc(P.M * sizeof(int));
         for (size_t a = 0; a < P.M; a++)
         {
-            population[p].antenna_position[2 * a] = rand() % P.W;
-            population[p].antenna_position[2 * a + 1] = rand() % P.H;
+            population[p].antennas_position[2 * a] = rand() % P.W;
+            population[p].antennas_position[2 * a + 1] = rand() % P.H;
         }
     }
 
@@ -169,8 +193,8 @@ int main(int argc, char const *argv[])
     // {
     //     int a_idx, x,y;
     //     fscanf(goodstartpos,"%d %d %d", &a_idx, &x, &y);
-    //     population[0].antenna_position[2*a_idx] = x;
-    //     population[0].antenna_position[2*a_idx + 1] = y;
+    //     population[0].antennas_position[2*a_idx] = x;
+    //     population[0].antennas_position[2*a_idx + 1] = y;
     // }
     // fclose(goodstartpos);
 
@@ -179,10 +203,13 @@ int main(int argc, char const *argv[])
         for (size_t p = 0; p < POPULATION; p++)
         {
             //Copy a solution/individual to GPU
-            cudaMemcpy(dev_antennas_positions, population[p].antenna_position, 2 * P.M * sizeof(int), cudaMemcpyHostToDevice);
-            //Call GPU kernel
-            solutionEval<<<P.N / 1000, 1000>>>(dev_P, dev_antennas_positions, dev_building_score);
+            cudaMemcpy(dev_antennas_positions, population[p].antennas_position, 2 * P.M * sizeof(int), cudaMemcpyHostToDevice);
+            //Call GPU kernels
+            solutionEval<<<P.N / 1000, 1000>>>(dev_P, dev_antennas_positions, dev_building_score, dev_building_antenna);
+            getAntennasScore<<<P.M / 1014, 1014>>>(dev_P, dev_antennas_positions, dev_building_antenna, dev_antennas_score);
+
             //Copy results back
+            cudaMemcpy(population[p].antennas_score, dev_antennas_score, P.M * sizeof(int), cudaMemcpyDeviceToHost);
             cudaMemcpy(building_score, dev_building_score, P.N * sizeof(int), cudaMemcpyDeviceToHost);
             //Evaluate results
             long int score = 0;
@@ -191,8 +218,6 @@ int main(int argc, char const *argv[])
                 score += building_score[b];
             }
             population[p].score = score;
-            //printf("%ld\n",score);
-            //exit(-1);
         }
 
         //Sort population according to score
@@ -206,15 +231,15 @@ int main(int argc, char const *argv[])
             int nonelite_parent = ELITE + (rand() % (POPULATION - ELITE));
             for (size_t a = 0; a < P.M; a++)
             {
-                if (rand() % 100 < RHO)
+                if ((population[nonelite_parent].antennas_score[a] > population[elite_parent].antennas_score[a]) | (rand() % 100 > RHO))
                 {
-                    population[p].antenna_position[2 * a] = population[elite_parent].antenna_position[2 * a];
-                    population[p].antenna_position[2 * a + 1] = population[elite_parent].antenna_position[2 * a + 1];
+                    population[p].antennas_position[2 * a] = population[nonelite_parent].antennas_position[2 * a];
+                    population[p].antennas_position[2 * a + 1] = population[nonelite_parent].antennas_position[2 * a + 1];
                 }
                 else
                 {
-                    population[p].antenna_position[2 * a] = population[nonelite_parent].antenna_position[2 * a];
-                    population[p].antenna_position[2 * a + 1] = population[nonelite_parent].antenna_position[2 * a + 1];
+                    population[p].antennas_position[2 * a] = population[elite_parent].antennas_position[2 * a];
+                    population[p].antennas_position[2 * a + 1] = population[elite_parent].antennas_position[2 * a + 1];
                 }
             }
         }
@@ -224,8 +249,8 @@ int main(int argc, char const *argv[])
         {
             for (size_t a = 0; a < P.M; a++)
             {
-                population[p].antenna_position[2 * a] = rand() % P.W;
-                population[p].antenna_position[2 * a + 1] = rand() % P.H;
+                population[p].antennas_position[2 * a] = rand() % P.W;
+                population[p].antennas_position[2 * a + 1] = rand() % P.H;
             }
         }
     }
@@ -246,7 +271,7 @@ int main(int argc, char const *argv[])
 
     for (size_t p = 0; p < POPULATION; p++)
     {
-        free(population[p].antenna_position);
+        free(population[p].antennas_position);
     }
     free(population);
 
