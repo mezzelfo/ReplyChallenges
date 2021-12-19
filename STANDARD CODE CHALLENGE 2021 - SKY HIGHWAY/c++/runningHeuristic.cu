@@ -11,9 +11,23 @@ struct Antenna
     int x, y;
 };
 
-// int compareAntennas (const void * a, const void * b) {
-//    return ( ((Antenna*)b)->range - ((Antenna*)a)->range); //Sort by decreasing range
-// }
+double scoreAntenna(const Antenna& a)
+{
+    double x1 = 1.0*a.range;
+    double x2 = 1.0*a.speed;
+    //return (0.020213772296552)*x1+(9.287874055129072e-08)*x2+(9.206660025069180e-05)*x1*x2+x1*x1+(-2.426132491619204e-11)*x2*x2;
+    //return x1+0.000001871996283*x2;
+    return sqrt(x1)+x2;
+}
+
+//long int *optimisticScore;
+int compareAntennas(const void *a, const void *b)
+{
+    const Antenna *A = (Antenna *)a;
+    const Antenna *B = (Antenna *)b;
+    return scoreAntenna(*A) < scoreAntenna(*B);
+    //return optimisticScore[B->ID] > optimisticScore[A->ID];
+}
 
 struct Building
 {
@@ -31,14 +45,18 @@ __global__ void solutionEval(Building *buildings, const Antenna *antennas, const
     for (size_t a_idx = 0; a_idx < M; a_idx++)
     {
         const Antenna a = antennas[a_idx];
-        const int dist = abs(b.x - a.x) + abs(b.y - a.y);
+        int dist = abs(b.x - a.x);
         if (dist <= a.range)
         {
-            const int contrib = b.speed * a.speed - b.latency * dist;
-            if ((contrib > best_score) | (antenna_connected_to == -1))
+            dist += abs(b.y - a.y);
+            if (dist <= a.range)
             {
-                best_score = contrib;
-                antenna_connected_to = a_idx;
+                const int contrib = b.speed * a.speed - b.latency * dist;
+                if ((contrib > best_score) | (antenna_connected_to == -1))
+                {
+                    best_score = contrib;
+                    antenna_connected_to = a_idx;
+                }
             }
         }
     }
@@ -50,7 +68,6 @@ __global__ void antennaPositionEval(const Antenna a, const int H, const int W, c
 {
     const int x = (blockIdx.x * blockDim.x) + threadIdx.x;
     const int y = (blockIdx.y * blockDim.y) + threadIdx.y;
-    //printf("(%d,%d)\n",y,x);
 
     int score = 0;
     for (int yy = max(0, y - a.range); yy <= min(H - 1, y + a.range); yy++)
@@ -68,10 +85,10 @@ __global__ void antennaPositionEval(const Antenna a, const int H, const int W, c
                 {
                     score += (contrib - b.best_score);
                 }
-                else if (b.antenna_connected_to == -1)
-                {
-                    score += contrib;
-                }
+                // else if (b.antenna_connected_to == -1)
+                // {
+                //     score += contrib;
+                // }
             }
         }
     }
@@ -139,7 +156,15 @@ int main(int argc, char const *argv[])
     }
     file.close();
 
-    //qsort(antennas, M, sizeof(Antenna),compareAntennas);
+    // optimisticScore = (long int *)malloc(M * sizeof(long int));
+    // FILE *foptim = fopen("antennas_contrib_B.csv", "r");
+    // for (size_t a = 0; a < M; a++)
+    // {
+    //     fscanf(foptim, "%ld,", optimisticScore + a);
+    // }
+    // fclose(foptim);
+    qsort(antennas, M, sizeof(Antenna), compareAntennas);
+    //free(optimisticScore);
 
     cudaMemcpy(dev_buildings_map, buildings_map, H * W * sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(dev_buildings, buildings, N * sizeof(Building), cudaMemcpyHostToDevice);
@@ -148,56 +173,93 @@ int main(int argc, char const *argv[])
     const dim3 threadsPerBlock(8, 8);
     const dim3 numBlocks(W / threadsPerBlock.x, H / threadsPerBlock.y);
 
-    for (size_t iteration = 0; iteration < 10000; iteration++)
+    long int best_score = LONG_MIN;
+    //Antenna *best_solution = (Antenna *)malloc(M * sizeof(Antenna));
+
+    for (size_t iteration = 0; iteration < 20; iteration++)
     {
-        solutionEval<<<N / 1000, 1000>>>(dev_buildings, dev_antennas, M);
-
-        if (iteration % 100 == 0)
+        printf("Iteration\n");
+        printf("Score: %.2f => %ld\n", best_score / 2078043619.0, best_score); //B
+        // printf("Score: %.2f => %ld\n", best_score / 5247238794.0, best_score); //D
+        // printf("Score: %.2f => %ld\n", best_score / 8109310667.0, best_score); //E
+        // printf("Score: %.2f => %ld\n", best_score / 24908802532.0, best_score); //F
+        for (size_t a_idx = 0; a_idx < M; a_idx++)
         {
-            cudaMemcpy(buildings, dev_buildings, N * sizeof(Building), cudaMemcpyDeviceToHost);
-            long int score = 0;
-            for (int b = 0; b < N; b++)
+            // if (a_idx % 100 == 0)
+            // {
+            //     printf("Antenna: %ld (%.2f)\n",a_idx, (a_idx*1.0)/M);
+            // }
+
+            solutionEval<<<N / 1000, 1000>>>(dev_buildings, dev_antennas, M);
+
+            if (true) //(a_idx % 100 == 0)
             {
-                if (buildings[b].antenna_connected_to != -1)
+                cudaMemcpy(buildings, dev_buildings, N * sizeof(Building), cudaMemcpyDeviceToHost);
+                long int score = 0;
+                for (int b = 0; b < N; b++)
                 {
-                    score += buildings[b].best_score;
+                    if (buildings[b].antenna_connected_to != -1)
+                    {
+                        score += buildings[b].best_score;
+                    }
+                }
+                if (score >= best_score)
+                {
+                    //printf("Score: %.2f => %ld\n", score / 2078043619.0, score); //B
+                    //printf("Score: %.2f => %ld\n",score/5247238794.0, score); //D
+                    //printf("Score: %.2f => %ld\n",score/8109310667.0, score); //E
+                    //printf("Score: %.2f => %ld\n",score/24908802532.0, score); //F
+
+                    best_score = score;
+                    //cudaMemcpy(best_solution, antennas, M * sizeof(Antenna), cudaMemcpyHostToHost);
+                    //memcmp(best_solution, antennas, M * sizeof(Antenna));
+                }
+
+                //printf("Score: %.2f => %ld\n",score/2078043619.0, score); //B
+                //printf("Score: %.2f => %ld\n",score/5247238794.0, score); //D
+                //printf("Score: %.2f => %ld\n",score/8109310667.0, score); //E
+                //printf("Score: %.2f => %ld\n",score/24908802532.0, score); //F
+            }
+
+            //Find best position for antenna a_idx
+            antennaPositionEval<<<numBlocks, threadsPerBlock>>>(antennas[a_idx], H, W, dev_buildings, dev_buildings_map, dev_score_map);
+            cudaMemcpy(score_map, dev_score_map, H * W * sizeof(int), cudaMemcpyDeviceToHost);
+            int pos_x = -1;
+            int pos_y = -1;
+            int best = 0;
+            for (int x = 0; x < W; x++)
+            {
+                for (int y = 0; y < H; y++)
+                {
+                    if ((score_map[W * y + x] > best) | (pos_x == -1))
+                    {
+                        best = score_map[W * y + x];
+                        pos_x = x;
+                        pos_y = y;
+                    }
                 }
             }
-            std::cout << (score * 1.0) / (2078043619.0) << std::endl; //B
-            //std::cout << (score * 1.0) / (5247238794.0) << std::endl; //D
-            //std::cout << (score * 1.0) / (8109310667.0) << std::endl; //F
-        }
 
-        //Find best position for antenna
-        int a_idx = rand() % M;
-        antennaPositionEval<<<numBlocks, threadsPerBlock>>>(antennas[a_idx], H, W, dev_buildings, dev_buildings_map, dev_score_map);
-        cudaMemcpy(score_map, dev_score_map, H * W * sizeof(int), cudaMemcpyDeviceToHost);
-        int pos_x = -1;
-        int pos_y = -1;
-        int best = 0;
-        for (int x = 0; x < W; x++)
-        {
-            for (int y = 0; y < H; y++)
-            {
-                if ((score_map[W * y + x] > best) | (pos_x == -1))
-                {
-                    best = score_map[W * y + x];
-                    pos_x = x;
-                    pos_y = y;
-                }
-            }
+            //Move antenna
+            antennas[a_idx].x = pos_x;
+            antennas[a_idx].y = pos_y;
+            cudaMemcpy(dev_antennas, antennas, M * sizeof(Antenna), cudaMemcpyHostToDevice);
         }
-
-        //Move antenna
-        antennas[a_idx].x = pos_x;
-        antennas[a_idx].y = pos_y;
-        cudaMemcpy(dev_antennas, antennas, M * sizeof(Antenna), cudaMemcpyHostToDevice);
     }
 
     // for (size_t a = 0; a < M; a++)
     // {
     //     std::cout << antennas[a].ID << ": (" << antennas[a].x << "," << antennas[a].y << ")\n";
     // }
+
+    printf("%ld\n", best_score);
+    // printf("%d\n",M);
+    // for (size_t a = 0; a < M; a++)
+    // {
+    //     printf("%d %d %d\n",best_solution[a].ID,best_solution[a].x,best_solution[a].y);
+    // }
+
+    //free(best_solution);
 
     cudaFreeHost(buildings);
     cudaFreeHost(antennas);
