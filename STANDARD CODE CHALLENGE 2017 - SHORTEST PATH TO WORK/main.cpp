@@ -6,6 +6,7 @@
 #include <string>
 #include <assert.h>
 #include <math.h>
+#include <algorithm>
 #include "IndexedHeap.hpp"
 
 #include <limits>
@@ -15,6 +16,7 @@ using namespace std;
 
 typedef pair<int, int> Point;
 typedef array<Point, 3> Triangle;
+//typedef pair<Point,Point> BoundingBox;
 
 ostream &operator<<(ostream &out, const Point &P) { return out << P.first << " " << P.second; }
 istream &operator>>(istream &in, Point &P) { return in >> P.first >> P.second; }
@@ -37,9 +39,11 @@ array<Point, 12> points_near_triangle(Triangle &T)
     return v;
 }
 
-int sign(const Point &p1, const Point &p2, const Point &p3)
+int sign(const Point &p, const Point &A, const Point &B)
 {
-    return (p1.first - p3.first) * (p2.second - p3.second) - (p2.first - p3.first) * (p1.second - p3.second);
+    // Ritorna la distanza con segno rispetto alla retta orientata da A a B.
+    // Se è positiva allora il punto è a sinistra della retta
+    return (p.first - B.first) * (A.second - B.second) - (p.second - B.second) * (A.first - B.first);
 }
 
 bool is_point_in_triangle(const Point &P, const Triangle &T)
@@ -83,10 +87,114 @@ int intersect(const Point &l1p1, const Point &l1p2, const Point &l2p1, const Poi
            ((ccw(l2p1, l2p2, l1p1) * ccw(l2p1, l2p2, l1p2)) <= 0);
 }
 
+// BoundingBox getBoundingBox(const Point &p0, const Point &p1)
+// {
+//     BoundingBox bb;
+//     bb.first.first = min(p0.first, p1.first);
+//     bb.first.second = max(p0.second, p1.second);
+//     bb.second.first = max(p0.first, p1.first);
+//     bb.second.second = min(p0.second, p1.second);
+//     return bb;
+// }
+
+// BoundingBox getBoundingBox(const Triangle &T)
+// {
+//     BoundingBox bb;
+//     bb.first.first = std::min({T[0].first, T[1].first, T[2].first});
+//     bb.first.second = std::max({T[0].second, T[1].second, T[2].second});
+//     bb.second.first = std::max({T[0].first, T[1].first, T[2].first});
+//     bb.second.second = std::min({T[0].second, T[1].second, T[2].second});
+//     return bb;
+// }
+
+// bool BoundingBoxesOverlap(const BoundingBox& B1, const BoundingBox& B2)
+// {
+//     auto xMin1 = B1.first.first;
+//     auto yMin1 = B1.second.second;
+//     auto xMax1 = B1.second.first;
+//     auto yMax1 = B1.first.second;
+
+//     auto xMin2 = B2.first.first;
+//     auto yMin2 = B2.second.second;
+//     auto xMax2 = B2.second.first;
+//     auto yMax2 = B2.first.second;
+
+//     if ((xMin1 < xMax2 || xMax1 > xMin2) && (yMin1 < yMax2 || yMax1 > yMin2))
+//         return false;
+//     return true;
+
+// }
+
 bool are_points_visible(const Point &p0, const Point &p1, const vector<Triangle> &obsV)
 {
+    if ((p0.first == p1.first) and (p0.second == p1.second))
+        return false;
+        
     for (auto &tri : obsV)
     {
+        // Estendendo i lati di un triangolo a rette si ottiene una partizione del piano in 7 parti
+        // Se i due punti stanno nella stessa parte sicuramente si vedono
+        // Se i due punti stanno in due parti contigue sicuramente si vedono
+
+        // bool b1_0 = sign(p0, tri[0], tri[1]) <= 0;
+        // bool b2_0 = sign(p0, tri[1], tri[2]) <= 0;
+        // bool b3_0 = sign(p0, tri[2], tri[0]) <= 0;
+
+        // bool b1_1 = sign(p1, tri[0], tri[1]) <= 0;
+        // bool b2_1 = sign(p1, tri[1], tri[2]) <= 0;
+        // bool b3_1 = sign(p1, tri[2], tri[0]) <= 0;
+
+        // unsigned crossings = (b1_0 != b1_1) + (b2_0 != b2_1) + (b3_0 != b3_1);
+
+        // if (crossings >= 2)
+        // {
+        //     if (intersect(p0, p1, tri[0], tri[1]))
+        //         return false;
+        //     if (intersect(p0, p1, tri[0], tri[2]))
+        //         return false;
+        //     if (intersect(p0, p1, tri[2], tri[1]))
+        //         return false;
+        // }
+
+        // int b0 = sign(tri[0], p0, p1);
+        // int b1 = sign(tri[1], p0, p1);
+        // int b2 = sign(tri[2], p0, p1);
+        // if ((b0 == 0) or (b1 == 0) or (b2 == 0))
+        // {
+        //     cout << p0 << endl << p1 << endl
+        //     << tri[0] << "\t" << b0 << endl
+        //     << tri[1] << "\t" << b1 << endl
+        //     << tri[2] << "\t" << b2 << endl
+        //     << endl << flush;
+        //     exit(-1);
+        // }
+
+        // int b0 = sign(tri[0], p0, p1);
+        // int b1 = sign(tri[1], p0, p1);
+        // int b2 = sign(tri[2], p0, p1);
+
+        // if ((b0 == 0) or (b1 == 0) or (b2 == 0))
+        // {
+
+        // }
+        // else
+        // {
+        //     if ((b0 != b1) or (b0 != b2) or (b1 != b2))
+        //     {
+        //         cout << p0 << endl << p1 << endl
+        //         << tri[0] << "\t" << b0 << endl
+        //         << tri[1] << "\t" << b1 << endl
+        //         << tri[2] << "\t" << b2 << endl
+        //         << endl << flush;
+        //         exit(-1);
+        //     }
+        // }
+
+        // if (!BoundingBoxesOverlap(getBoundingBox(p0,p1), getBoundingBox(tri)))
+        //    continue; 
+        
+        
+
         if (intersect(p0, p1, tri[0], tri[1]))
             return false;
         if (intersect(p0, p1, tri[0], tri[2]))

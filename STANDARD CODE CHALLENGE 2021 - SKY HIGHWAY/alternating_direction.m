@@ -4,22 +4,23 @@ clc
 global W H N M R buildings_features antennas_features
 
 read_file('data_scenarios_b_mumbai.in');
-bound_above();
+%bound_above();
 %[antennas_positions] = get_good_starting_pos();
 %tic
 %get_total_score(antennas_positions)
 %toc
-return
+%return
 %unique(antennas_features(1,:))
 %hist(antennas_features(1,:))
 
-% fileID = fopen('good_starting_pos/b.txt');
-% placed_antennas = fscanf(fileID,'%d',[1,1]);
-% good_start_pos = fscanf(fileID,'%d',[3,placed_antennas]);
-% antennas_positions(:,good_start_pos(1,:)+1) = good_start_pos(2:3,:);
-% fclose(fileID);
+fileID = fopen('good_starting_pos/b_mio.txt');
+placed_antennas = fscanf(fileID,'%d',[1,1]);
+good_start_pos = fscanf(fileID,'%d',[3,placed_antennas]);
+antennas_positions(:,good_start_pos(1,:)+1) = good_start_pos(2:3,:);
+fclose(fileID);
 
-
+init_position = antennas_positions;
+pippo_pluto = zeros(M,1);
 
 %Get connection structure: given a building, get the associated antenna
 connections = zeros(N,1);
@@ -42,11 +43,11 @@ for b = 1:N
     end
 end
 
-
+score
 res = [sum(isnan(connections))/length(connections), score];
 res
 
-for iteration = 1:100
+for iteration = 1:1
     
     %Optimize placement, keeping fixed connection structure
     opts1=  optimset('display','off');
@@ -92,8 +93,10 @@ for iteration = 1:100
             case 0
                 %Randomly place again this antenna
                 antennas_positions(:,a) = [randi(W); randi(H)];
+                pippo_pluto(a) = 1;
             case 1
                 antennas_positions(:,a) = buildings_features(1:2,near_buildings);
+                pippo_pluto(a) = 2;
             otherwise
                 near_buildings_latency = buildings_features(3,near_buildings);
                 near_buildings_position = buildings_features(1:2,near_buildings);
@@ -153,3 +156,15 @@ end
 
 res(end,2)/res(1,2)
 plot(res(:,2))
+
+deltas = vecnorm(init_position - antennas_positions, 1);
+sum(pippo_pluto == 0)
+sum(pippo_pluto == 1)
+sum(pippo_pluto == 2)
+max(deltas(pippo_pluto == 0))
+max(deltas(pippo_pluto == 1))
+max(deltas(pippo_pluto == 2))
+% scatter(deltas, pippo_pluto)
+% max(deltas(pippo_pluto == 0))
+% antennas_features(1,pippo_pluto == 1)
+% max(deltas(pippo_pluto == 2))
