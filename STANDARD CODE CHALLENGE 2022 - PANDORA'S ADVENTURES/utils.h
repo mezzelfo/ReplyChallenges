@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 typedef struct
 {
@@ -20,5 +21,6 @@ typedef struct
 
 Problem parse_input_file(const char *filename);
 long unsigned int complete_simulator(const int length_demon_idx_list, const int *demon_idx_list, const Problem *P);
+float randomFloat();
 
 #endif

@@ -81,4 +81,8 @@ long unsigned int complete_simulator(const int length_demon_idx_list, const int 
     return fragments;
 }
 
-
+float randomFloat()
+{
+      float r = (float)rand()/(float)RAND_MAX;
+      return r;
+}
