@@ -65,7 +65,19 @@ int main(int argc, char const *argv[])
 
     Problem prob = parse_input_file(argv[1]);
 
+    // TODO create pools of demons for file 03
+
+    int minimum_stamina_consumed = +999999.9;
+    for (size_t d = 0; d < prob.num_demons; d++)
+    {
+        if (minimum_stamina_consumed > prob.demons[d].stamina_consumed)
+        {
+            minimum_stamina_consumed = prob.demons[d].stamina_consumed;
+        }
+    }
+
     // Q is the Q-values table
+    // TODO "linearize" the array for speed
     float ***Q = (float ***)malloc(sizeof(float **) * NUM_ACTIONS);
     for (size_t a = 0; a < NUM_ACTIONS; a++)
     {
@@ -78,10 +90,10 @@ int main(int argc, char const *argv[])
 
     const float alpha = 0.05;
     const float gamma = 0.99;
-
+    const float epsilon = 0.05;
     int counter = 0;
 
-    for (size_t iterations = 0; iterations < 1000000; iterations++)
+    for (size_t iterations = 0; iterations < 5*1000000; iterations++)
     {
         counter++;
         if (counter % 10000 == 0)
@@ -89,17 +101,35 @@ int main(int argc, char const *argv[])
             printf("counter %d\n", counter);
         }
         State s;
-        s.stamina = prob.stamina_init;
-        s.turn = 0;
+        if (randomFloat() < 0.5)
+        {
+            s.stamina = prob.stamina_init;
+            s.turn = 0;
+        }
+        else
+        {
+            s.stamina = rand() % (prob.stamina_max+1);
+            s.turn = rand() % (prob.num_turns-10);
+        }
 
         for (size_t t = 0; t < prob.num_turns; t++)
         {
             // TODO choose an action: exploration vs exploitation
             Action a;
-            if (randomFloat() < 0.5)
-                a = GOOD;
+            if (randomFloat() < epsilon)
+            {
+                if (randomFloat() < 0.5)
+                    a = GOOD;
+                else
+                    a = BAD;
+            }
             else
-                a = BAD;
+            {
+                if (Q[GOOD][s.turn][s.stamina] > Q[BAD][s.turn][s.stamina])
+                    a = GOOD;
+                else
+                    a = BAD;
+            }
 
             State new_state;
             unsigned int reward;
@@ -120,6 +150,9 @@ int main(int argc, char const *argv[])
             Q[a][s.turn][s.stamina] += alpha * (reward + gamma * Qmax - Q[a][s.turn][s.stamina]);
 
             s = new_state;
+
+            if (s.stamina < minimum_stamina_consumed)
+                break;
         }
     }
 
