@@ -1,31 +1,37 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "utils.h"
 
 Problem parse_input_file(const char *filename)
 {
     FILE *fp = fopen(filename, "r");
     Problem P;
-    fscanf(fp, "%d %d %d %ld\n",
+    int checkfscaf;
+    checkfscaf = fscanf(fp, "%d %d %d %ld\n",
            &(P.stamina_init),
            &(P.stamina_max),
            &(P.num_turns),
            &(P.num_demons));
+    
+    assert(checkfscaf == 4);
 
     P.demons = (Demon *)malloc(sizeof(Demon) * P.num_demons);
     for (size_t i = 0; i < P.num_demons; i++)
     {
-        fscanf(fp, "%d %d %d %ld ",
+        checkfscaf = fscanf(fp, "%d %d %d %ld ",
                &(P.demons[i].stamina_consumed),
                &(P.demons[i].turn_recovered),
                &(P.demons[i].stamina_recovered),
                &(P.demons[i].num_turns_framgments));
+        assert(checkfscaf == 4);
         P.demons[i].fragments = (unsigned int *)malloc(sizeof(unsigned int) * P.demons[i].num_turns_framgments);
         for (size_t j = 0; j < P.demons[i].num_turns_framgments; j++)
         {
-            fscanf(fp, "%d", &(P.demons[i].fragments[j]));
+            checkfscaf = fscanf(fp, "%d", &(P.demons[i].fragments[j]));
+            assert(checkfscaf == 1);
         }
-        fscanf(fp, "\n");
+        checkfscaf = fscanf(fp, "\n");
     }
 
     return P;
