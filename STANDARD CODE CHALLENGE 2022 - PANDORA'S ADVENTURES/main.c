@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "utils.h"
+#include "demon_choosers.h"
+
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
 
 #define NUM_ACTIONS (2)
 typedef enum
@@ -14,23 +18,16 @@ typedef struct
     unsigned int stamina, turn;
 } State;
 
-Action classify_demon(const Demon d)
-{
-    if (d.stamina_recovered > d.stamina_consumed)
-    {
-        return GOOD;
-    }
-    return BAD;
-}
+Demon *good_demons_pool, *bad_demons_pool;
+size_t good_demons_idx, bad_demons_idx;
 
 Demon get_demon_from_action(const Action A, const State S, const Problem *P)
 {
-    Demon d;
-    do
-    {
-        d = P->demons[rand() % P->num_demons];
-    } while (classify_demon(d) != A);
-    return d;
+    size_t good_idx = rand() % good_demons_idx;
+    size_t bad_idx = rand() % good_demons_idx;
+    Demon good = good_demons_pool[good_idx];
+    Demon bad = bad_demons_pool[bad_idx];    
+    if (A == GOOD) return good; else return bad;
 }
 
 void Q_value_simulator(const Action A, const State S, const Problem *P, State *new_state, unsigned int *reward)
@@ -64,36 +61,67 @@ int main(int argc, char const *argv[])
     srand(time(NULL));
 
     Problem prob = parse_input_file(argv[1]);
-
-    // TODO create pools of demons for file 03
+    
+    // DemonList demonList;
+    // demonList.demon_pos_idx = 0;
+    // demonList.length = prob.num_demons;
+    // demonList.list_ids = (int*)malloc(sizeof(int)*demonList.length);
+    // FILE *fpp = fopen("submit_3.txt", "r");
+    // for (size_t d = 0; d < prob.num_demons; d++)
+    // {
+    //     fscanf(fpp,"%d\n",&(demonList.list_ids[d]));
+    // }
+    // fclose(fpp);
+    // long unsigned int reward = complete_simulator(&demon_chooser_from_list, &prob, (void*)(&demonList));
+    // printf("%ld\n",reward);
+    // return 0;
+    prob.num_turns = 400;
 
     int minimum_stamina_consumed = +999999.9;
-    for (size_t d = 0; d < prob.num_demons; d++)
+    good_demons_pool = (Demon*) malloc(sizeof(Demon)*prob.num_demons);
+    bad_demons_pool = (Demon*) malloc(sizeof(Demon)*prob.num_demons);
+    good_demons_idx = 0;
+    bad_demons_idx = 0;
+    for (size_t d_idx = 0; d_idx < prob.num_demons; d_idx++)
     {
-        if (minimum_stamina_consumed > prob.demons[d].stamina_consumed)
+        Demon d = prob.demons[d_idx];
+        if (d.turn_recovered > 10) continue;        
+        
+        if (d.stamina_recovered > d.stamina_consumed)
         {
-            minimum_stamina_consumed = prob.demons[d].stamina_consumed;
+            good_demons_pool[good_demons_idx] = d;
+            good_demons_idx++;
+        }
+        else
+        {
+            bad_demons_pool[bad_demons_idx] = d;
+            bad_demons_idx++;
+        }
+
+        if (minimum_stamina_consumed > d.stamina_consumed)
+        {
+            minimum_stamina_consumed = d.stamina_consumed;
         }
     }
+
+    good_demons_pool = realloc(good_demons_pool, sizeof(Demon)*good_demons_idx);
+    bad_demons_pool = realloc(bad_demons_pool, sizeof(Demon)*bad_demons_idx);
+    
+    assert(good_demons_pool != NULL);
+    assert(bad_demons_pool != NULL);
 
     // Q is the Q-values table
-    // TODO "linearize" the array for speed
-    float ***Q = (float ***)malloc(sizeof(float **) * NUM_ACTIONS);
-    for (size_t a = 0; a < NUM_ACTIONS; a++)
-    {
-        Q[a] = (float **)malloc(sizeof(float *) * prob.num_turns);
-        for (size_t t = 0; t < prob.num_turns; t++)
-        {
-            Q[a][t] = (float *)calloc(prob.stamina_max + 1, sizeof(float));
-        }
-    }
+    // Q[turn][stamina][action]
+    // matrix[ i ][ j ][ k ] : L by N by M = array[ i*(N*M) + j*M + k ]
+    float *Q = (float *)calloc(prob.num_turns * (prob.stamina_max + 1) * NUM_ACTIONS, sizeof(float));
+
+    assert(Q != NULL);
 
     const float alpha = 0.05;
-    const float gamma = 0.99;
-    const float epsilon = 0.05;
+    const float epsilon = 0.75;
     int counter = 0;
 
-    for (size_t iterations = 0; iterations < 5*1000000; iterations++)
+    for (size_t iterations = 0; iterations < 1000000; iterations++)
     {
         counter++;
         if (counter % 10000 == 0)
@@ -101,15 +129,15 @@ int main(int argc, char const *argv[])
             printf("counter %d\n", counter);
         }
         State s;
-        if (randomFloat() < 0.5)
+        if (randomFloat() < 0.1)
         {
             s.stamina = prob.stamina_init;
             s.turn = 0;
         }
         else
         {
-            s.stamina = rand() % (prob.stamina_max+1);
-            s.turn = rand() % (prob.num_turns-10);
+            s.stamina = rand() % (prob.stamina_max + 1);
+            s.turn = rand() % (prob.num_turns - 10);
         }
 
         for (size_t t = 0; t < prob.num_turns; t++)
@@ -125,7 +153,11 @@ int main(int argc, char const *argv[])
             }
             else
             {
-                if (Q[GOOD][s.turn][s.stamina] > Q[BAD][s.turn][s.stamina])
+                // Q[turn][stamina][action]
+                // matrix[ i ][ j ][ k ] : L by N by M = array[ i*(N*M) + j*M + k ]
+                float Q_GOOD = Q[s.turn * (prob.stamina_max + 1) * NUM_ACTIONS + s.stamina * NUM_ACTIONS + GOOD];
+                float Q_BAD = Q[s.turn * (prob.stamina_max + 1) * NUM_ACTIONS + s.stamina * NUM_ACTIONS + BAD];
+                if (Q_GOOD > Q_BAD)
                     a = GOOD;
                 else
                     a = BAD;
@@ -138,16 +170,12 @@ int main(int argc, char const *argv[])
             if (new_state.turn == prob.num_turns)
                 break;
 
-            float Qmax = -9999.9;
-            for (size_t next_action = 0; next_action < NUM_ACTIONS; next_action++)
-            {
-                if (Qmax < Q[next_action][new_state.turn][new_state.stamina])
-                {
-                    Qmax = Q[next_action][new_state.turn][new_state.stamina];
-                }
-            }
+            float Q_GOOD = Q[new_state.turn * (prob.stamina_max + 1) * NUM_ACTIONS + new_state.stamina * NUM_ACTIONS + GOOD];
+            float Q_BAD = Q[new_state.turn * (prob.stamina_max + 1) * NUM_ACTIONS + new_state.stamina * NUM_ACTIONS + BAD];
+            float Qmax = MAX(Q_GOOD, Q_BAD);
 
-            Q[a][s.turn][s.stamina] += alpha * (reward + gamma * Qmax - Q[a][s.turn][s.stamina]);
+            Q[s.turn * (prob.stamina_max + 1) * NUM_ACTIONS + s.stamina * NUM_ACTIONS + a] +=
+                alpha * (reward + Qmax - Q[s.turn * (prob.stamina_max + 1) * NUM_ACTIONS + s.stamina * NUM_ACTIONS + a]);
 
             s = new_state;
 
@@ -175,11 +203,11 @@ int main(int argc, char const *argv[])
             {
                 if (s == 0)
                 {
-                    fprintf(fp, "%f", Q[a][t][s]);
+                    fprintf(fp, "%f", Q[t * (prob.stamina_max + 1) * NUM_ACTIONS + s * NUM_ACTIONS + a]);
                 }
                 else
                 {
-                    fprintf(fp, ",%f", Q[a][t][s]);
+                    fprintf(fp, ",%f", Q[t * (prob.stamina_max + 1) * NUM_ACTIONS + s * NUM_ACTIONS + a]);
                 }
             }
             fprintf(fp, "}");
@@ -193,6 +221,8 @@ int main(int argc, char const *argv[])
     // long unsigned int reward = complete_simulator(prob.num_demons, list, &prob);
 
     // printf("Input file %s. Reward %ld\n", argv[1], reward);
-
+    free(good_demons_pool);
+    free(bad_demons_pool);
+    free(Q);
     return 0;
 }
