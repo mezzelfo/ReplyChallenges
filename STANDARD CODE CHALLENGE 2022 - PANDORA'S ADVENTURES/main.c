@@ -26,8 +26,11 @@ Demon get_demon_from_action(const Action A, const State S, const Problem *P)
     size_t good_idx = rand() % good_demons_idx;
     size_t bad_idx = rand() % good_demons_idx;
     Demon good = good_demons_pool[good_idx];
-    Demon bad = bad_demons_pool[bad_idx];    
-    if (A == GOOD) return good; else return bad;
+    Demon bad = bad_demons_pool[bad_idx];
+    if (A == GOOD)
+        return good;
+    else
+        return bad;
 }
 
 void Q_value_simulator(const Action A, const State S, const Problem *P, State *new_state, unsigned int *reward)
@@ -61,7 +64,7 @@ int main(int argc, char const *argv[])
     srand(time(NULL));
 
     Problem prob = parse_input_file(argv[1]);
-    
+
     // DemonList demonList;
     // demonList.demon_pos_idx = 0;
     // demonList.length = prob.num_demons;
@@ -78,15 +81,16 @@ int main(int argc, char const *argv[])
     prob.num_turns = 400;
 
     int minimum_stamina_consumed = +999999.9;
-    good_demons_pool = (Demon*) malloc(sizeof(Demon)*prob.num_demons);
-    bad_demons_pool = (Demon*) malloc(sizeof(Demon)*prob.num_demons);
+    good_demons_pool = (Demon *)malloc(sizeof(Demon) * prob.num_demons);
+    bad_demons_pool = (Demon *)malloc(sizeof(Demon) * prob.num_demons);
     good_demons_idx = 0;
     bad_demons_idx = 0;
     for (size_t d_idx = 0; d_idx < prob.num_demons; d_idx++)
     {
         Demon d = prob.demons[d_idx];
-        if (d.turn_recovered > 10) continue;        
-        
+        if (d.turn_recovered > 10)
+            continue;
+
         if (d.stamina_recovered > d.stamina_consumed)
         {
             good_demons_pool[good_demons_idx] = d;
@@ -104,9 +108,9 @@ int main(int argc, char const *argv[])
         }
     }
 
-    good_demons_pool = realloc(good_demons_pool, sizeof(Demon)*good_demons_idx);
-    bad_demons_pool = realloc(bad_demons_pool, sizeof(Demon)*bad_demons_idx);
-    
+    good_demons_pool = realloc(good_demons_pool, sizeof(Demon) * good_demons_idx);
+    bad_demons_pool = realloc(bad_demons_pool, sizeof(Demon) * bad_demons_idx);
+
     assert(good_demons_pool != NULL);
     assert(bad_demons_pool != NULL);
 

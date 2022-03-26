@@ -63,7 +63,7 @@ long unsigned int complete_simulator(
         Demon D = demon_chooser(stamina, t, stamina_list, defeated_demons_list, P, demont_chooser_args);
         if (D.id != -1)
         {
-            printf("affronto %d. Per ora ho %d frammenti\n",D.id,fragments);
+            printf("affronto %d. Per ora ho %d frammenti\n", D.id, fragments);
             assert(stamina >= D.stamina_consumed);
             defeated_demons_list[t] = D;
             stamina -= D.stamina_consumed;
