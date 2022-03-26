@@ -25,6 +25,7 @@ Problem parse_input_file(const char *filename)
                &(P.demons[i].stamina_recovered),
                &(P.demons[i].num_turns_framgments));
         assert(checkfscaf == 4);
+        P.demons[i].id = i;
         P.demons[i].fragments = (unsigned int *)malloc(sizeof(unsigned int) * P.demons[i].num_turns_framgments);
         for (size_t j = 0; j < P.demons[i].num_turns_framgments; j++)
         {
@@ -34,6 +35,7 @@ Problem parse_input_file(const char *filename)
         checkfscaf = fscanf(fp, "\n");
     }
 
+    fclose(fp);
     return P;
 }
 
