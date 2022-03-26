@@ -19,18 +19,30 @@ typedef struct
 } State;
 
 Demon *good_demons_pool, *bad_demons_pool;
-size_t good_demons_idx, bad_demons_idx;
+size_t good_demons_pool_length, bad_demons_pool_length;
 
 Demon get_demon_from_action(const Action A, const State S, const Problem *P)
 {
-    size_t good_idx = rand() % good_demons_idx;
-    size_t bad_idx = rand() % good_demons_idx;
-    Demon good = good_demons_pool[good_idx];
-    Demon bad = bad_demons_pool[bad_idx];
+    Demon *chosen_demon_pool;
+    size_t chosen_demon_pool_length;
     if (A == GOOD)
-        return good;
+    {
+        chosen_demon_pool = good_demons_pool;
+        chosen_demon_pool_length = good_demons_pool_length;
+    }
     else
-        return bad;
+    {
+        chosen_demon_pool = bad_demons_pool;
+        chosen_demon_pool_length = bad_demons_pool_length;
+    }
+    Demon d;
+    for (size_t i = 0; i < 100; i++)
+    {
+        d = chosen_demon_pool[rand() % chosen_demon_pool_length];
+        if (d.stamina_consumed < S.stamina)
+            break;
+    }
+    return d;
 }
 
 void Q_value_simulator(const Action A, const State S, const Problem *P, State *new_state, unsigned int *reward)
@@ -59,6 +71,29 @@ void Q_value_simulator(const Action A, const State S, const Problem *P, State *n
     }
 }
 
+Demon demon_chooser_from_Qvalues(unsigned int stamina, size_t turn, const unsigned int *stamina_list, const Demon *defeated_demons_list, const Problem *P, void *args)
+{
+    const float *const Q = (float *)args;
+    float Q_GOOD = Q[turn * (P->stamina_max + 1) * NUM_ACTIONS + stamina * NUM_ACTIONS + GOOD];
+    float Q_BAD = Q[turn * (P->stamina_max + 1) * NUM_ACTIONS + stamina * NUM_ACTIONS + BAD];
+    State s;
+    s.stamina = stamina;
+    s.turn = turn;
+    Action a;
+    if (Q_GOOD > Q_BAD)
+        a = GOOD;
+    else
+        a = BAD;
+
+    Demon d = get_demon_from_action(a, s, P);
+    if (d.stamina_consumed < stamina)
+        return d;
+
+    Demon nullDemon;
+    nullDemon.id = -1;
+    return nullDemon;
+}
+
 int main(int argc, char const *argv[])
 {
     srand(time(NULL));
@@ -78,13 +113,12 @@ int main(int argc, char const *argv[])
     // long unsigned int reward = complete_simulator(&demon_chooser_from_list, &prob, (void*)(&demonList));
     // printf("%ld\n",reward);
     // return 0;
-    prob.num_turns = 400;
 
     int minimum_stamina_consumed = +999999.9;
     good_demons_pool = (Demon *)malloc(sizeof(Demon) * prob.num_demons);
     bad_demons_pool = (Demon *)malloc(sizeof(Demon) * prob.num_demons);
-    good_demons_idx = 0;
-    bad_demons_idx = 0;
+    good_demons_pool_length = 0;
+    bad_demons_pool_length = 0;
     for (size_t d_idx = 0; d_idx < prob.num_demons; d_idx++)
     {
         Demon d = prob.demons[d_idx];
@@ -93,13 +127,13 @@ int main(int argc, char const *argv[])
 
         if (d.stamina_recovered > d.stamina_consumed)
         {
-            good_demons_pool[good_demons_idx] = d;
-            good_demons_idx++;
+            good_demons_pool[good_demons_pool_length] = d;
+            good_demons_pool_length++;
         }
         else
         {
-            bad_demons_pool[bad_demons_idx] = d;
-            bad_demons_idx++;
+            bad_demons_pool[bad_demons_pool_length] = d;
+            bad_demons_pool_length++;
         }
 
         if (minimum_stamina_consumed > d.stamina_consumed)
@@ -108,8 +142,8 @@ int main(int argc, char const *argv[])
         }
     }
 
-    good_demons_pool = realloc(good_demons_pool, sizeof(Demon) * good_demons_idx);
-    bad_demons_pool = realloc(bad_demons_pool, sizeof(Demon) * bad_demons_idx);
+    good_demons_pool = realloc(good_demons_pool, sizeof(Demon) * good_demons_pool_length);
+    bad_demons_pool = realloc(bad_demons_pool, sizeof(Demon) * bad_demons_pool_length);
 
     assert(good_demons_pool != NULL);
     assert(bad_demons_pool != NULL);
@@ -188,6 +222,9 @@ int main(int argc, char const *argv[])
         }
     }
 
+    long unsigned int reward = complete_simulator(&demon_chooser_from_Qvalues, &prob, (void *)(Q));
+    printf("Q_values reward %ld\n", reward);
+
     // Save Q table
     FILE *fp = fopen("Q_table", "w");
     fprintf(fp, "{");
@@ -220,11 +257,6 @@ int main(int argc, char const *argv[])
     }
     fprintf(fp, "}");
 
-    // int list[] = {1,3,2,0,4};
-
-    // long unsigned int reward = complete_simulator(prob.num_demons, list, &prob);
-
-    // printf("Input file %s. Reward %ld\n", argv[1], reward);
     free(good_demons_pool);
     free(bad_demons_pool);
     free(Q);
